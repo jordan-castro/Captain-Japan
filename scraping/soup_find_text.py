@@ -1,7 +1,7 @@
 # Script to return the correct text rather than False or None when using BeautifulSoup
 
-def find_text(text):
+def find_text(text, find):
     if not text:
         return None
     else:
-        return "Chapter" in text
+        return find in text

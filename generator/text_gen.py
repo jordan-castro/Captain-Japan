@@ -5,7 +5,7 @@ def generate_text_file(data, title):
     Generate a text file.
 
     Params:
-        - <data str> the data to put into the file,
+        - <data list({'chapter_title': title: str, 'chapter_text': text: str})> the data to put into the file,
         - <title str> name of file
         - <line_len int> how long a line of text should be
     """
