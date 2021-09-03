@@ -92,3 +92,9 @@ class InteractiveBrowser:
         """
         if url:
             self.browser.get(url)
+
+    def close_con(self):
+        """
+        Close the connection on the interactive browser.
+        """
+        self.browser.close()
