@@ -39,17 +39,24 @@ class WuxiaScraper:
         # Now we have the URL for the chapters
         self.chapters_path = self.browser.current_url().split("/")[-1].split("-chapter-")[0]
 
-    def build_url(self, chapter):
+    def build_url(self, chapter, return_url=False):
         """
-        Build the url based on the chapter passed. Will go to url for you.
+        Build the url based on the chapter passed. 
+        Will go to url for you, unless return_url is passed as True.
 
         Params:
             - <chapter: int> The chapter to build url from
+            - <return_url: str> Whether or not to return the url built.
+
+        Returns: <str | None>
         """
         url = self.novel_title.replace(" ", "-").lower()
         # Url with chapter number
         url_with_chapter_number = f"{self.wuxia_url}novel/{url}/{self.chapters_path}-chapter-{chapter}"
-        self.browser.change_page(url_with_chapter_number)
+        if return_url:
+            return url_with_chapter_number
+        else:
+            self.browser.change_page(url_with_chapter_number)
 
     def download(self, chapters, one_file=True):
         """
@@ -111,11 +118,11 @@ class WuxiaScraper:
         Returns: <data: dict>  
         """
         # Build the URL
-        self.build_url(chapter)
+        url = self.build_url(chapter, return_url=True)
         # Grab page
-        page = self.browser.get_page()
+        page = make_GET_request(url)
         # Start souper
-        soup = BeautifulSoup(page, "html.parser")
+        soup = BeautifulSoup(page.content, "html.parser")
         # Grab chapter text
         chapter_text = soup.find_all(dir="ltr")
         # Check that chapter_text is empty
@@ -208,5 +215,8 @@ class WuxiaScraper:
 
 if __name__ == "__main__":
     wuxia = WuxiaScraper()
-    wuxia.find_novel("Martial God Asura")
-    wuxia.download([1])
+    wuxia.find_novel("the second coming of gluttony")
+    chapters = []
+    for x in range(10):
+        chapters.append(x + 1)
+    wuxia.download(chapters)
