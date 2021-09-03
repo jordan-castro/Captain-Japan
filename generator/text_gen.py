@@ -1,6 +1,10 @@
 import codecs
+from pathlib import Path
+from os import mkdir
+from data.dir import novels_dir
 
-def generate_text_file(data, title):
+
+def generate_text_file(data, title, directory):
     """
     Generate a text file.
 
@@ -8,26 +12,34 @@ def generate_text_file(data, title):
         - <data list({'chapter_title': title: str, 'chapter_text': text: str})> the data to put into the file,
         - <title str> name of file
         - <line_len int> how long a line of text should be
+
+    Returns: <str> file path
     """
     # Variable to write to file
     text = ""
 
-    # Loop through data passed
-    for d in data:
-        # Data must be list(dict) and meet requirements
-        # Contain "chapter_title":str and "chapter_text":list(str) 
-        text += f"\n\n\n{d['chapter_title']}\n\n\n"
-        # Format chapter_data
-        for chd in d['chapter_text']:
-            # Textify and strip chapter_text
-            chd = chd.text.strip()
-            # If last then no break lines
-            if chd == d['chapter_text'][-1]:
-                text += chd
-            else:
-                # Otherwise break lines
-                text += f"{chd}\n\n"
+    # Data must be list(dict) and meet requirements
+    # Format chapter_data
+    for chd in data['chapter_text']:
+        # Textify and strip chapter_text
+        chd = chd.text.strip()
+        # If last then no break lines
+        if chd == data['chapter_text'][-1]:
+            text += chd
+        else:
+            # Otherwise break lines
+            text += f"{chd}\n\n"
+
+    path_to_dir = f"{novels_dir()}{directory}"
+
+    # Check if directory does not exists And if not then create it
+    if not Path(path_to_dir).exists():
+        mkdir(path_to_dir)
+
+    file_path = f"{path_to_dir}/{title}.txt"
 
     # Write file
-    with codecs.open(f"{title}.txt", "w", "utf-8") as text_file:
+    with codecs.open(file_path, "w", "utf-8") as text_file:
         text_file.write(text)
+
+    return file_path
