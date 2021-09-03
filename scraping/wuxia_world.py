@@ -1,18 +1,19 @@
 from generator.text_gen import generate_text_file
-from scraping.req import make_GET_request
+from scraping.req import make_GET_request, valid_url
 from bs4 import BeautifulSoup
-from display.text import display_txt
 from scraping.soup_find_text import find_text
 from multiprocessing.pool import ThreadPool
 from browser.browse import InteractiveBrowser
+from data.helper import DOWNLOADS_TABLE, DbHelper
+from data.models.download_model import Download
+import time
 
 
 class WuxiaScraper:
-
-    def __init__(self):
+    def __init__(self, connection=None):
         # Wuxia URL
         self.wuxia_url = "https://www.wuxiaworld.com/"
-        self.browser = InteractiveBrowser(self.wuxia_url)
+        self.browser = connection or InteractiveBrowser(self.wuxia_url)
         self.chapters_path = None
         self.novel_title = None
 
@@ -23,13 +24,21 @@ class WuxiaScraper:
         Params:
             - <novel_title: str> the title of the novel to find
         """    
+        # Check if we are not at self.wuxia_url
+        if self.browser.current_url() != self.wuxia_url:
+            self.browser.change_page(self.wuxia_url)
+
         self.novel_title = novel_title
-        # Create the end of the url
+        # Create the end of the url and then the url
         end_of_url = novel_title.replace(" ", "-").lower()
+        url = f"{self.wuxia_url}novel/{end_of_url}"
+        # Check if url exists
+        if not valid_url(url):
+            return False
+
         # Change url
-        self.browser.change_page(f"{self.wuxia_url}novel/{end_of_url}")
-        # Todo Check exists
-        
+        self.browser.change_page(url)
+
         # Click chapters_button
         chapters_button = self.browser.grab_data_from_tags(("x-path", '//*[@id="content-container"]/div[4]/div/div/div[2]/div[3]/ul/li[2]/a'))
         chapters_button[0].click()
@@ -58,7 +67,7 @@ class WuxiaScraper:
         else:
             self.browser.change_page(url_with_chapter_number)
 
-    def download(self, chapters, one_file=True):
+    def download(self, chapters):
         """
         Download the chapters passed.
 
@@ -68,12 +77,12 @@ class WuxiaScraper:
             
         Important: Must call find_novel(novel_title) before in order to set up path and stuff
 
-        Return: <path_to_file: str|list> generated file path|paths
+        Retunr: <list(Downloads)>
         """
-        # Start the threading proccess
+        # Start the threading process
         pool = ThreadPool(processes=len(chapters))
 
-        file_data = []
+        downloads = []
         requests_ = []
         
         # Grab chapter data
@@ -85,28 +94,23 @@ class WuxiaScraper:
         for request in requests_:
             # Data from request
             data_from_request = request.get()
-            if one_file:
-                file_data.append(data_from_request)
-            else:
-                # File name
-                file_name = f"{self.novel_title} Chapter: {chapters[requests_.index(request)]}"
-                # Add file name to list
-                file_data.append(file_name)
-                # Write to file
-                generate_text_file([data_from_request], file_name)
-                pass
-        
-        # Check to put in one file
-        if one_file:
-            # Flatten data
-            flat_file_data = [chapter for inter in file_data for chapter in inter]
-            # Generate file
-            generate_text_file(flat_file_data, self.novel_title)
+            # File name
+            file_name = f"Chapter_{chapters[requests_.index(request)]}"
+            # Write to file
+            file_path = generate_text_file(data_from_request, f"{file_name}", directory=self.novel_title)
+            # Append data
+            downloads.append(
+                Download(
+                    self.novel_title, 
+                    file_name, 
+                    int(time.time()), 
+                    file_path, 
+                    None
+                )
+            )
 
-        if one_file:
-            return f"{self.novel_title}.txt"
-        else:
-            return file_data
+        # Return the downloads list
+        return downloads
 
     def scrape_wuxia(self, chapter):
         """
@@ -128,6 +132,7 @@ class WuxiaScraper:
         # Check that chapter_text is empty
         if len(chapter_text) < 1:
             chapter_text = soup.find_all("p")
+            # self.strip_p_tag(chapter_text)
 
         # Grab chapter title
         chapter_title = soup.find_all(
@@ -135,88 +140,31 @@ class WuxiaScraper:
             string=lambda text: find_text(text, "Chapter")
         )[0].text.strip()
 
-        data = [
-            {
-                "chapter_title": chapter_title,
-                "chapter_text": chapter_text
-            }
-        ]
+        data = {
+            "chapter_title": chapter_title,
+            "chapter_text": chapter_text
+        }
 
         return data
-
-# def scrape_wuxia(title, chapters):
-#     """
-#     Scrape the Wuxia World website based on the title of the series and chapter numbers.
-
-#     Params:
-#         - <title: str> The title of the series
-#         - <chapters: list|int> A list of chapter numbers or one chapter
-
-#     Return: <success: bool>
-#     """
-#     # Data to send to generator
-#     data = []
-
-#     # Scrape
-#     for chapter in chapters:
-#         url = build_wuxia_url(title, chapter)
-#         # Grab the HTML page
-#         wuxia_page = make_GET_request(url)
-#         # Soup
-#         soup = BeautifulSoup(wuxia_page.content, "html.parser")
-#         # Grab chapter_text
-#         chapter_text = soup.find_all(dir="ltr")
-#         # Grab chapter_title
-#         chapter_title = soup.find_all(
-#             "h4", 
-#             string=lambda text: find_text(text, "Chapter")
-#         )[0].text.strip()
-
-#         # Append
-#         # chapter_texts.append(chapter_text)
-#         # chapter_titles.append(chapter_title)
-#         data.append(
-#             {
-#                 "chapter_title": chapter_title,
-#                 "chapter_text": chapter_text
-#             }
-#         )
-
-#     return data
-#     # Generate file
-#     # generate_text_file(data, file_name)
-
-
-# def thread_wuxia(title, chapters, file_name):
-#     """
-#     Thread scrape_wuxia(title, chapters, file_name). for the amount of chapters
-#     """
-#     pool = ThreadPool(processes=len(chapters))
-    
-#     file_data = []
-#     requests = []
-
-#     for chapter in chapters:
-#         requests.append(pool.apply_async(scrape_wuxia, (title, [chapter])))
-#         # target=scrape_wuxia, args=(title, [chapter], f"{file_name}: {chapter}")
-
-#     # Get the data from async
-#     for request in requests:
-#         file_data.append(request.get())
-
-#     # Flatten file data
-#     flat_file_data = [chapter for spec in file_data for chapter in spec]
-
-#     generate_text_file(flat_file_data, file_name)
-#     display_txt(f"{file_name}.txt", is_file=True)
-
-
 
 
 if __name__ == "__main__":
     wuxia = WuxiaScraper()
-    wuxia.find_novel("the second coming of gluttony")
+    wuxia.find_novel("OVERGEARED")
     chapters = []
     for x in range(10):
         chapters.append(x + 1)
-    wuxia.download(chapters)
+    downloads = wuxia.download(chapters)
+    
+    db = DbHelper()
+
+    for download in downloads:
+        db.insert(
+            DOWNLOADS_TABLE, 
+            download.sql_format()
+        )
+
+    print(db.query_downloads())
+
+    # Close connection
+    wuxia.browser.close_con()
