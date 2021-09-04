@@ -14,7 +14,10 @@ class WuxiaScraper:
         # Wuxia URL
         self.wuxia_url = "https://www.wuxiaworld.com/"
         self.browser = connection or InteractiveBrowser(self.wuxia_url)
+        # Each novel has its own way of defining their chapters url path.
+        # It is det in find_novel()
         self.chapters_path = None
+        # Also set in find_novel()
         self.novel_title = None
 
     def find_novel(self, novel_title):
@@ -41,10 +44,17 @@ class WuxiaScraper:
 
         # Click chapters_button
         chapters_button = self.browser.grab_data_from_tags(("x-path", '//*[@id="content-container"]/div[4]/div/div/div[2]/div[3]/ul/li[2]/a'))
+        # Chequea que encontramos el buton
+        if len(chapters_button) == 0:
+            return False
         chapters_button[0].click()
 
         chapters = self.browser.grab_data_from_tags(("class", "chapter-item"))
+        # Chequea que encontramos los capitulos
+        if len(chapters) == 0:
+            return False
         chapters[0].click()
+
         # Now we have the URL for the chapters
         self.chapters_path = self.browser.current_url().split("/")[-1].split("-chapter-")[0]
 
@@ -94,14 +104,16 @@ class WuxiaScraper:
         for request in requests_:
             # Data from request
             data_from_request = request.get()
+            if not data_from_request:
+                return False
             # File name
             file_name = f"Chapter_{chapters[requests_.index(request)]}"
             # Write to file
-            file_path = generate_text_file(data_from_request, f"{file_name}", directory=self.novel_title)
+            file_path = generate_text_file(data_from_request, f"{file_name}", directory=self.novel_title.replace(" ", "_"))
             # Append data
             downloads.append(
                 Download(
-                    self.novel_title, 
+                    self.novel_title.replace(" ", "_"), 
                     file_name, 
                     int(time.time()), 
                     file_path, 
@@ -150,12 +162,21 @@ class WuxiaScraper:
 
 if __name__ == "__main__":
     wuxia = WuxiaScraper()
-    wuxia.find_novel("OVERGEARED")
+    found = wuxia.find_novel("Spice and wolf")
+    
+    if not found:
+        print(f"Failed finding {wuxia.novel_title}")
+        exit(0)
+
     chapters = []
     for x in range(10):
         chapters.append(x + 1)
     downloads = wuxia.download(chapters)
     
+    if not downloads:
+        print(f"Failed findind {wuxia.novel_title}")
+        exit(0)
+
     db = DbHelper()
 
     for download in downloads:
