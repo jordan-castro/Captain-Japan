@@ -1,11 +1,11 @@
-from generator.text_gen import generate_text_file
-from scraping.req import make_GET_request, valid_url
+from backend.generator.text_gen import generate_text_file
+from backend.scraping.req import make_GET_request, valid_url
 from bs4 import BeautifulSoup
-from scraping.soup_find_text import find_text
+from backend.scraping.soup_find_text import find_text
 from multiprocessing.pool import ThreadPool
-from browser.browse import InteractiveBrowser
-from data.helper import DOWNLOADS_TABLE, DbHelper
-from data.models.download_model import Download
+from backend.browser.browse import InteractiveBrowser
+from backend.data.helper import DOWNLOADS_TABLE, DbHelper
+from backend.data.models.download_model import Download
 import time
 
 
@@ -57,6 +57,8 @@ class WuxiaScraper:
 
         # Now we have the URL for the chapters
         self.chapters_path = self.browser.current_url().split("/")[-1].split("-chapter-")[0]
+        
+        return True
 
     def build_url(self, chapter, return_url=False):
         """
@@ -105,7 +107,7 @@ class WuxiaScraper:
             # Data from request
             data_from_request = request.get()
             if not data_from_request:
-                return False
+                continue
             # File name
             file_name = f"Chapter_{chapters[requests_.index(request)]}"
             # Write to file
@@ -113,11 +115,11 @@ class WuxiaScraper:
             # Append data
             downloads.append(
                 Download(
-                    self.novel_title.replace(" ", "_"), 
-                    file_name, 
-                    int(time.time()), 
-                    file_path, 
-                    None
+                    title=self.novel_title.replace(" ", "_"), 
+                    name=file_name, 
+                    date=int(time.time()), 
+                    location=file_path, 
+                    image=None
                 )
             )
 
@@ -139,12 +141,9 @@ class WuxiaScraper:
         page = make_GET_request(url)
         # Start souper
         soup = BeautifulSoup(page.content, "html.parser")
-        # Grab chapter text
-        chapter_text = soup.find_all(dir="ltr")
-        # Check that chapter_text is empty
-        if len(chapter_text) < 1:
-            chapter_text = soup.find_all("p")
-            # self.strip_p_tag(chapter_text)
+        # Grab chapter_body
+        chapter_body = soup.find(id="chapter-outer")
+        chapter_text = chapter_body.find_all("p")
 
         # Grab chapter title
         chapter_title = soup.find_all(
@@ -162,8 +161,8 @@ class WuxiaScraper:
 
 if __name__ == "__main__":
     wuxia = WuxiaScraper()
-    found = wuxia.find_novel("Spice and wolf")
-    
+    found = wuxia.find_novel("overgeared")
+
     if not found:
         print(f"Failed finding {wuxia.novel_title}")
         exit(0)
@@ -173,19 +172,14 @@ if __name__ == "__main__":
         chapters.append(x + 1)
     downloads = wuxia.download(chapters)
     
-    if not downloads:
-        print(f"Failed findind {wuxia.novel_title}")
-        exit(0)
-
     db = DbHelper()
+    db.delete_total(DOWNLOADS_TABLE)
 
     for download in downloads:
         db.insert(
             DOWNLOADS_TABLE, 
             download.sql_format()
         )
-
-    print(db.query_downloads())
 
     # Close connection
     wuxia.browser.close_con()
