@@ -43,20 +43,21 @@ class InteractiveBrowser:
 
         Return: <webdriver.Restuls|False>
         """
-        results = self.grab_data_from_tags(tag)
+        data = self.grab_data_from_tags(tag)
         # Chequea si tags son empty
-        if not results:
+        if not data:
             return False
         
         # Query search
-        results[0].send_keys(query)
-        results[0].submit()
+        data[0].send_keys(query)
+        data[0].submit()
 
         if results_tag:
             # Query results_tag this time
             results = self.grab_data_from_tags(results_tag)
+            return results or False
 
-        return results or False
+        return True
 
     def grab_data_from_tags(self, tag) -> list:
         """
