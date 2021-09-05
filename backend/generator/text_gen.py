@@ -1,7 +1,7 @@
 import codecs
 from pathlib import Path
 from os import mkdir
-from data.dir import novels_dir
+from backend.data.dir import novels_dir
 
 
 def generate_text_file(data, title, directory):
