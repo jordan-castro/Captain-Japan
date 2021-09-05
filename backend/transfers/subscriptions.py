@@ -43,10 +43,10 @@ class SubscriptionsHandler(CryptoBase):
         """
         # Wrap with try block
         try:
-            # Get transaction build
-            tx = self.build_transaction_dict(account.nonce)
-            key = self.contract.functions.forgotSecretKey().buildTransaction(tx)
-
+            # transaction data
+            tx_data = self.build_transaction_dict(account.nonce(), value=self.forgot_key_fee())
+            tx = self.contract.functions.forgotSecretKey().buildTransaction(tx_data)
+            # Todo figure out how to return string from smart contract.
         except:
             return False
 
@@ -77,8 +77,9 @@ class SubscriptionsHandler(CryptoBase):
         Return: <tuple(bool, end_of_sub: int)>
         """
         try:
+            payment_info = self.payment_type_info(sub_type)
             # Build transaction data
-            tx_data = self.build_transaction_dict(account.nonce(), value=self.payment_type_info(sub_type)[0])
+            tx_data = self.build_transaction_dict(account.nonce(), value=payment_info[0])
             # Contract call
             tx = self.contract.functions.subscribe(sub_type, key).buildTransaction(tx_data)
             account.sign_transaction(tx)
@@ -87,7 +88,7 @@ class SubscriptionsHandler(CryptoBase):
             return False
         
         # Todo calculate time till (end of subscription)
-        return (True, )
+        return (True, payment_info[1])
 
     def gift_subscription(self, reciever, sender: AccountsManager, sub_type, key):
         """
@@ -135,6 +136,12 @@ class SubscriptionsHandler(CryptoBase):
         # Convert price to Ether
         return (self.node.fromWei(info[0], 'ether'), info[1])
 
+    def forgot_key_fee(self):
+        """
+        Get the fee for forgetting your secret key.
+        """
+        fee = self.contract.functions.getForgotKeyFee().call()
+        return self.node.fromWei(fee, 'ether')
 
 if __name__ == "__main__":
     crypto = SubscriptionsHandler()
@@ -143,18 +150,27 @@ if __name__ == "__main__":
     # brownie run subscriptions
     # Foud in SubscriptionsModel/scripts
     
-    # Testing the subscribe and whatnot
-    account = AccountsManager(1)
-    subscribed = crypto.is_subscribed(account.public_key)
-    # print(subscribed)
+    # # Testing the subscribe and whatnot
+    # account = AccountsManager(1)
+    # subscribed = crypto.is_subscribed(account.public_key)
     # if not subscribed:
     #     # Subscribe
     #     crypto.subscribe(account, 0, "Hi")
     
     # subscribed = crypto.is_subscribed(account.public_key)
-    print(subscribed)
+    # print(subscribed)
 
-    # Tesing valid user
-    verified = crypto.is_valid_subscriber(account.public_key, "Hello")
+    # # Tesing valid user
+    # verified = crypto.is_valid_subscriber(account.public_key, "Hi")
+    # print(verified)
+    
+    # Testing gifting/rewards
+    account = "0x2FC5f276104aE2D95Bf3F2455D8FB67984F67235"
+    sender = AccountsManager(1)
+    # crypto.gift_subscription(account, sender, 1, "My friend")
+
+    subscibed = crypto.is_subscribed(account)
+    print(subscibed)
+    verified = crypto.is_valid_subscriber(account, "My friend")
     print(verified)
     # print(f"Is subscribed {crypto.is_subscribed(crypto.node.eth.accounts[1])}")
