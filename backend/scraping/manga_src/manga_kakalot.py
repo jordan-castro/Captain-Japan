@@ -1,17 +1,13 @@
-from backend.data.helper import DOWNLOADS_TABLE, DbHelper
-from backend.scraping.req import make_GET_request, valid_image_url
-from multiprocessing.pool import ThreadPool
+from backend.utils.downloader import download_manga
 from bs4 import BeautifulSoup
 from backend.browser.browse import InteractiveBrowser
-from backend.data.models.download_model import Download
-from backend.generator.generate_manga import generate_manga
 
 
 class MangaKakalot:
     def __init__(self, connection=None):
         # MangaKakalot url
         self.kakalot_url = "https://mangakakalot.com/"
-        self.browser = connection or InteractiveBrowser(self.kakalot_url)
+        self.browser = connection or InteractiveBrowser(self.kakalot_url, True)
         # Each manga has their own way of defining the series
         # Is defined in find_manga()
         self.manga_path = None
@@ -75,50 +71,7 @@ class MangaKakalot:
 
         return url
 
-    def download(self, chapters):
-        """
-        Download the manga chapters passed.
-
-        Params:
-            - <chapters: list(int)> the chapters of the manga
-
-        Important: Must call find_manga(self, manga_title) before calling, otherwise method will fail.
-
-        Return: list(Download)
-        """
-        # Thread to save time
-        pool = ThreadPool(processes=len(chapters))
-
-        requests_ = []
-
-        # Grab data
-        for chapter in chapters:
-            # Change to correct chapter
-            self.browser.change_page(self.build_url(chapter))
-            requests_.append(pool.apply_async(self.scrape_kakalot, (chapter, self.browser.get_page()))) # Todo 
-        
-        # Now loop through request_ and get data
-        for request in requests_:
-            # Data from request
-            data = request.get()
-            if not data:
-                continue
-            # Generate files
-            paths = generate_manga(data, directory=f"{self.manga_title.replace(' ', '_')}")
-
-        return list(
-            map(
-                lambda path: Download(
-                    title=self.manga_title,
-                    name=path.split('/')[-1].replace('.png', ''),
-                    location=path,
-                    image=None
-                ), 
-                paths
-            )
-        )
-
-    def scrape_kakalot(self, chapter, page_content):
+    def scrape(self, chapter, page_content):
         """
         Scrape a MangaKakalot manga chapter page.
 
@@ -142,8 +95,6 @@ class MangaKakalot:
                 del chapter_images[chapter_images.index(image)]
                 continue
 
-            print(f"El source del imagen es {image['src']}")
-
             image_data = make_GET_request(
                 image['src'], 
                 headers={"Referer": self.kakalot_url}
@@ -166,13 +117,15 @@ if __name__ == "__main__":
     
     chapters = []
 
-    for x in range(1):
+    for x in range(10):
         chapters.append(x+1)
 
-    downloads = manga.download(chapters)
-    db = DbHelper(True)
+    download_manga(manga.manga_title, chapters, manga)
 
-    for download in downloads:
-        db.insert(DOWNLOADS_TABLE, download.sql_format())
+    # downloads = manga.download(chapters)
+    # db = DbHelper(True)
 
-    print(db.query_downloads())
+    # for download in downloads:
+    #     db.insert(DOWNLOADS_TABLE, download.sql_format())
+
+    # print(db.query_downloads())

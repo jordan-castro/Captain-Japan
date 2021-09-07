@@ -1,12 +1,8 @@
-from backend.generator.text_gen import generate_text_file
+from backend.utils.downloader import download_novel
 from backend.scraping.req import make_GET_request, valid_url
 from bs4 import BeautifulSoup
 from backend.scraping.soup_find_text import find_text
-from multiprocessing.pool import ThreadPool
 from backend.browser.browse import InteractiveBrowser
-from backend.data.helper import DOWNLOADS_TABLE, DbHelper
-from backend.data.models.download_model import Download
-import time
 
 
 class WuxiaScraper:
@@ -79,53 +75,6 @@ class WuxiaScraper:
         else:
             self.browser.change_page(url_with_chapter_number)
 
-    def download(self, chapters):
-        """
-        Download the chapters passed.
-
-        Params:
-            - <chapters: list(int)> The list of chapters to download.
-            - <one_file: bool=True> Split each chapter to its own file? 
-            
-        Important: Must call find_novel(novel_title) before in order to set up path and stuff
-
-        Retunr: <list(Downloads)>
-        """
-        # Start the threading process
-        pool = ThreadPool(processes=len(chapters))
-
-        downloads = []
-        requests_ = []
-        
-        # Grab chapter data
-        for chapter in chapters:
-            # Async scrape to make faster
-            requests_.append(pool.apply_async(self.scrape_wuxia, (chapter,)))
-
-        # Now loop and grab data from requests
-        for request in requests_:
-            # Data from request
-            data_from_request = request.get()
-            if not data_from_request:
-                continue
-            # File name
-            file_name = f"Chapter_{chapters[requests_.index(request)]}"
-            # Write to file
-            file_path = generate_text_file(data_from_request, f"{file_name}", directory=self.novel_title.replace(" ", "_"))
-            # Append data
-            downloads.append(
-                Download(
-                    title=self.novel_title.replace(" ", "_"), 
-                    name=file_name, 
-                    date=int(time.time()), 
-                    location=file_path, 
-                    image=None
-                )
-            )
-
-        # Return the downloads list
-        return downloads
-
     def scrape_wuxia(self, chapter):
         """
         Scrape the Wuxia World website based on the tile of the series and chapter numbers.
@@ -161,7 +110,7 @@ class WuxiaScraper:
 
 if __name__ == "__main__":
     wuxia = WuxiaScraper()
-    found = wuxia.find_novel("overgeared")
+    found = wuxia.find_novel("The second coming of gluttony")
 
     if not found:
         print(f"Failed finding {wuxia.novel_title}")
@@ -170,16 +119,16 @@ if __name__ == "__main__":
     chapters = []
     for x in range(10):
         chapters.append(x + 1)
-    downloads = wuxia.download(chapters)
-    
-    db = DbHelper()
-    db.delete_total(DOWNLOADS_TABLE)
+    downloads = download_novel(wuxia.novel_title, chapters, wuxia.scrape_wuxia)
+    print(map(lambda d: d.sql_format() ,downloads))
+    # # db = DbHelper()
+    # # db.delete_total(DOWNLOADS_TABLE)
 
-    for download in downloads:
-        db.insert(
-            DOWNLOADS_TABLE, 
-            download.sql_format()
-        )
+    # # for download in downloads:
+    # #     db.insert(
+    # #         DOWNLOADS_TABLE, 
+    # #         download.sql_format()
+    # #     )
 
-    # Close connection
-    wuxia.browser.close_con()
+    # # Close connection
+    # wuxia.browser.close_con()
