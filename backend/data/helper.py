@@ -11,6 +11,7 @@ DOWNLOAD_NAME = "name"
 DOWNLOAD_DATE = "date"
 DOWNLOAD_LOC = "location"
 DOWNLOAD_IMAGE = "image"
+DOWNLOAD_TYPE = "type"
 
 
 USERS_TABLE = "users"
@@ -47,7 +48,8 @@ class DbHelper:
                 {DOWNLOAD_NAME} TEXT,
                 {DOWNLOAD_DATE} INTEGER,
                 {DOWNLOAD_LOC} TEXT,
-                {DOWNLOAD_IMAGE} TEXT
+                {DOWNLOAD_IMAGE} TEXT,
+                {DOWNLOAD_TYPE} INTEGER
             ); 
             """
         )
