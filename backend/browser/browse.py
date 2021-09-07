@@ -6,8 +6,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 class InteractiveBrowser:
     
-    def __init__(self, initial_url="https://google.com/", debug=False):
-        self.__setup_browser(initial_url, debug)
+    def __init__(self, initial_url="https://google.com/", debug=False, browser=None):
+        self.browser = browser
+        if not self.browser:
+            self.__setup_browser(initial_url, debug)
 
     def current_url(self):
         return self.browser.current_url
