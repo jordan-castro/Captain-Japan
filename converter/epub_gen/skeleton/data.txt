@@ -1,0 +1,3 @@
+skeleton.cpp,skeleton.o
+skeleton_api.cpp,skeleton_api.o
+skeleton.exe
