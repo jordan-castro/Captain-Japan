@@ -1,4 +1,4 @@
-from backend.utils.hide_dir import hide_dir
+from backend.utils.dir_helper import hide_dir
 from pathlib import Path
 from os import mkdir
 from backend.data.dir import novels_dir
