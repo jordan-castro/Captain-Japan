@@ -1,3 +1,5 @@
+from backend.utils.default_title import default_title
+from backend.generator.pdf_generator import generate_pdf
 from backend.utils.downloader import download_novel
 from backend.scraping.req import make_GET_request, valid_url
 from bs4 import BeautifulSoup
@@ -117,18 +119,9 @@ if __name__ == "__main__":
         exit(0)
 
     chapters = []
-    for x in range(10):
+    for x in range(8, 50):
         chapters.append(x + 1)
     downloads = download_novel(wuxia.novel_title, chapters, wuxia.scrape_wuxia)
-    print(map(lambda d: d.sql_format() ,downloads))
-    # # db = DbHelper()
-    # # db.delete_total(DOWNLOADS_TABLE)
-
-    # # for download in downloads:
-    # #     db.insert(
-    # #         DOWNLOADS_TABLE, 
-    # #         download.sql_format()
-    # #     )
-
-    # # Close connection
-    # wuxia.browser.close_con()
+    
+    files = [download.location for download in downloads]
+    generate_pdf(files, default_title(wuxia.novel_title))
