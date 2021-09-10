@@ -1,0 +1,4 @@
+exe: htmltopdf.exe
+files:
+  pdf.cpp,pdf.o
+  generator.cpp,generator.o
