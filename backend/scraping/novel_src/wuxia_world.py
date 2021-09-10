@@ -1,3 +1,4 @@
+from backend.generator.epub_generator import generate_epub
 from backend.utils.default_title import default_title
 from backend.generator.pdf_generator import generate_pdf
 from backend.utils.downloader import download_novel
@@ -124,4 +125,5 @@ if __name__ == "__main__":
     downloads = download_novel(wuxia.novel_title, chapters, wuxia.scrape_wuxia)
     
     files = [download.location for download in downloads]
-    generate_pdf(files, default_title(wuxia.novel_title))
+    generate_epub(files, f"{default_title(wuxia.novel_title)}-epub")
+    # generate_pdf(files, default_title(wuxia.novel_title))
