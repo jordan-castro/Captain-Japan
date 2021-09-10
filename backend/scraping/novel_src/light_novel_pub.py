@@ -1,10 +1,9 @@
 ### Scrape https://www.lightnovelpub.com/
+from backend.generator.pdf_generator import generate_pdf
 from backend.utils.downloader import download_novel
 from backend.browser.browse import InteractiveBrowser
 from backend.utils.default_title import default_title
 from bs4 import BeautifulSoup
-from backend.scraping.req import make_GET_request
-import time
 
 
 class LightNovelPub(InteractiveBrowser):
@@ -39,6 +38,7 @@ class LightNovelPub(InteractiveBrowser):
         results = self.send_search(("id", "inputContent"), novel_title, ("class", "novel-item"))
         # Check that we got results
         if not results:
+            # We could be on captcha.
             return False
 
         # We have results lets click the first one
@@ -47,14 +47,6 @@ class LightNovelPub(InteractiveBrowser):
         self.novel_path = self.current_url()
         # Now grab chapters path
         self.chapter_path = self.novel_path + "/chapter-1"
-        # chapter_button = self.grab_data_from_tags(("id", "readchapterbtn"))
-        # Check we got chapter button
-        # if not chapter_button:
-            # return False
-
-        # chapter_button[0].click()
-        # print(self.current_url())
-        # self.chapter_path = self.current_url()
         return True
 
     def build_url(self, chapter):
@@ -117,11 +109,17 @@ class LightNovelPub(InteractiveBrowser):
 
 if __name__ == "__main__":
     novel_pub = LightNovelPub()
-    novel_pub.find_novel("The beginning after the end")
+    hit = novel_pub.find_novel("The beginning after the end")
     
+    if not hit:
+        print(hit)
+        exit()
+
     chapters = []
     for x in range(20):
         chapters.append(x+1)
     
-    download_novel(novel_pub.novel_title, chapters, novel_pub.scrape)
-    # d = novel_pub.scrape(1)
+    downloads = download_novel(novel_pub.novel_title, chapters, novel_pub.scrape, async_=False)
+
+    files = [download.location for download in downloads]
+    generate_pdf(files, default_title(novel_pub.novel_title))
