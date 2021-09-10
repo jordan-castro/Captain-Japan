@@ -6,7 +6,7 @@ from backend.generator.generate_manga import generate_manga
 from backend.utils.default_title import default_title
 
 
-def download_novel(novel_title, chapters, scrape_method):
+def download_novel(novel_title, chapters, scrape_method, async_=True):
     """
     Download a novel.
 
@@ -14,44 +14,63 @@ def download_novel(novel_title, chapters, scrape_method):
         - <novel_title: str> The title of the novel to download.
         - <chapters: list(int)> The chapters to download.
         - <scrape_method: def> The method that will scrape the data
+        - <async_: bool=True> Should we run this method asynchronously?
 
     Return: <list(Download)>
     """
-    # Pool for quicker speed
-    pool = ThreadPool(processes=len(chapters))
-
-    # Requests
-    reqs = []
     downloads = []
-
     # Title of novel universal
     title = default_title(novel_title)
+    if async_:
+        # Pool for quicker speed
+        pool = ThreadPool(processes=len(chapters))
 
-    # Start the process for reading chapter data
-    for chapter in chapters:    
-        reqs.append(pool.apply_async(scrape_method, (chapter, )))
+        # Requests
+        reqs = []
 
-    # Now grab the data
-    for req in reqs:
-        # Data
-        chapter_data = req.get()
-        # Verify data
-        if not chapter_data:
-            continue
 
-        # Name of file
-        file_name = f"Chapter_{chapters[reqs.index(req)]}"
-        # Write file
-        file_path = generate_html_file(chapter_data, file_name, directory=title)
-        downloads.append(
-            Download(
-                title=title,
-                name=file_name,
-                location=file_path,
-                image=None,
-                download_type=1,
+        # Start the process for reading chapter data
+        for chapter in chapters:    
+            reqs.append(pool.apply_async(scrape_method, (chapter, )))
+
+        # Now grab the data
+        for req in reqs:
+            # Data
+            chapter_data = req.get()
+            # Verify data
+            if not chapter_data:
+                continue
+
+            # Name of file
+            file_name = f"Chapter_{chapters[reqs.index(req)]}"
+            # Write file
+            file_path = generate_html_file(chapter_data, file_name, directory=title)
+            downloads.append(
+                Download(
+                    title=title,
+                    name=file_name,
+                    location=file_path,
+                    image=None,
+                    download_type=1,
+                )
             )
-        )
+    else:
+        # For synchronous calls. Required when webpage needs to run javascript
+        for chapter in chapters:
+            # Grab data
+            chapter_data = scrape_method(chapter)
+            file_name = f"Chapter_{chapter}"
+            file_path = generate_html_file(chapter_data, file_name, directory=title)
+            # Add to downloads
+            downloads.append(
+                Download(
+                    title=title,
+                    name=file_name,
+                    location=file_path,
+                    image=None,
+                    download_type=1
+                )
+            )
 
     # Now return download data
     return downloads
