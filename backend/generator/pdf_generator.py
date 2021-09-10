@@ -1,6 +1,5 @@
-### Script to generate PDF's based off of HTML (LightNovel) or Images (Manga)
-import subprocess
-import os
+# Script to generate PDF's based off of HTML (LightNovel) or Images (Manga)
+from backend.converter.pdf import PDF, NOVEL_PDF, MANGA_PDF
 
 
 def generate_pdf(files, output, novel=True, manga=False):
@@ -15,13 +14,24 @@ def generate_pdf(files, output, novel=True, manga=False):
 
     Returns <str>
     """
-    # Create data file in .txt format
-    with open("pdf-data.txt", 'w') as data_file:
-        # Add the pdf title as the first line
-        data_file.write(f"{output}\n")
-        for file in files:
-            data_file.write(f"{file}\n")
-    
-    pdf_data_file = os.getcwd() + "/pdf-data.txt"
-    # Now call the execution script
-    subprocess.call(f'cd converter/pdf && htmltopdf {pdf_data_file}', shell=True)
+    if novel:
+        pdf_type = NOVEL_PDF
+    elif manga:
+        pdf_type = MANGA_PDF
+    else:
+        # BAKA! You can only have novel or manga!
+        return
+
+    # Start the PDF object
+    pdf = PDF(output, pdf_type)
+
+    # Loop through files passed and add them to the pdf
+    for f in files:
+        if novel:
+            pdf.add_html(f)
+        else:
+            pdf.add_image(f)
+
+    # Now le'ts build the PDF
+    path = pdf.build()
+    return path
