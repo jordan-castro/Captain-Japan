@@ -1,5 +1,0 @@
-exe: ebub.exe
-files:
-  skeleton/skeleton.cpp,skeleton.o
-  epub.cpp,epub.o
-  generator.cpp,generator.o
