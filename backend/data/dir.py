@@ -15,3 +15,4 @@ def manga_dir():
 
 def anime_dir():
     return f"{base_dir()}anime/"
+    

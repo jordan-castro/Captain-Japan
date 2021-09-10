@@ -1,3 +1,4 @@
+from backend.utils.hide_dir import hide_dir
 from pathlib import Path
 from os import mkdir
 from backend.data.dir import novels_dir
@@ -20,6 +21,8 @@ def generate_html_file(data, title, directory):
     # Check does not exists
     if not Path(path_to).exists():
         mkdir(path_to)
+        # And hide
+        hide_dir(path_to)
 
     file_path = f"{path_to}/{title}.html"
 
