@@ -25,6 +25,9 @@ def generate_html_file(data, title, directory):
 
     # Create file
     with open(file_path, "w", encoding="utf-8") as html_file:
+        # First write the <meta> needed for converting to PDF
+        html_file.write('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n')
+        html_file.write(f'<h1>{title.replace("_", " ")}</h1>')
         # Write the html
         for html in data['chapter_text']:
             html_file.write(str(html))
