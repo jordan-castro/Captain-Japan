@@ -132,3 +132,4 @@ dmypy.json
 backend/scraped_data/novels/
 backend/scraped_data/manga/
 backend/scraped_data/anime/
+backend/data/cptjpn.db
