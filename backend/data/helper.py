@@ -1,22 +1,22 @@
 import sqlite3
 from os import getcwd
-from backend.utils.private_key_handler import save_locally
+# from backend.utils.private_key_handler import save_locally
 
 # Database values (Tables, columns, etc)
-DOWNLOADS_TABLE = "donwloads"
-# Columns for downlaods
-DOWNLOAD_ID = "id"
-DOWNLOAD_TITLE = "title"
-DOWNLOAD_NAME = "name"
-DOWNLOAD_DATE = "date"
-DOWNLOAD_LOC = "location"
-DOWNLOAD_IMAGE = "image"
-DOWNLOAD_TYPE = "type"
+
+
+SCRAPE_TABLE = "scrape"
+# Columns for scrape
+SCRAPE_ID = "scrapeid"
+SCRAPE_TITLE = "title"
+SCRAPE_TYPE = "type"
+SCRAPE_COVER = "cover"
+SCRAPE_SOURCE = "source"
 
 
 USERS_TABLE = "users"
 # Columns for users
-USER_ID = "id"
+USER_ID = "userid"
 USER_NAME = "name"
 USER_JOIN_DATE = "joined_date"
 USER_WALLET = "wallet"
@@ -24,6 +24,23 @@ USER_PATH_TO_SK = "path_to_sk"
 USER_PSEUDO = "pseudo"
 USER_SUB_TYPE = "subscription_type"
 USER_LAST_PAYED = "last_payed"
+
+
+DOWNLOADS_TABLE = "donwloads"
+# Columns for downlaods
+DOWNLOAD_ID = "downlaodid"
+DOWNLOAD_SCRAPE_ID = SCRAPE_ID
+DOWNLOAD_USER_ID = USER_ID
+DOWNLOAD_NAME = "name"
+DOWNLOAD_DATE = "date"
+DOWNLOAD_LOC = "location"
+
+
+APP_DATA_TABLE = "app_data"
+# Columns for app_data
+APP_DATA_ID = "id"
+APP_VERSION = "version"
+APP_DATABASE_VERSION = "db_version"
 
 
 class DbHelper:
@@ -44,12 +61,11 @@ class DbHelper:
             f"""
             CREATE TABLE IF NOT EXISTS {DOWNLOADS_TABLE} (
                 {DOWNLOAD_ID} INTEGER PRIMARY KEY,
-                {DOWNLOAD_TITLE} TEXT,
+                {DOWNLOAD_SCRAPE_ID} INTEGER NOT NULL,
+                {DOWNLOAD_USER_ID} INTEGER NOT NULL,
                 {DOWNLOAD_NAME} TEXT,
                 {DOWNLOAD_DATE} INTEGER,
-                {DOWNLOAD_LOC} TEXT,
-                {DOWNLOAD_IMAGE} TEXT,
-                {DOWNLOAD_TYPE} INTEGER
+                {DOWNLOAD_LOC} TEXT
             ); 
             """
         )
@@ -67,6 +83,27 @@ class DbHelper:
             )
             """
         )
+        cursor.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS {SCRAPE_TABLE} (
+                {SCRAPE_ID} INTEGER PRIMARY KEY,
+                {SCRAPE_TITLE} TEXT,
+                {SCRAPE_COVER} TEXT,
+                {SCRAPE_SOURCE} TEXT NOT NULL,
+                {SCRAPE_TYPE} INTEGER NOT NULL
+            )
+            """
+        )
+        cursor.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS {APP_DATA_TABLE} (
+                {APP_DATA_ID} INTEGER PRIMARY KEY,
+                {APP_DATABASE_VERSION} INTEGER NOT NULL,
+                {APP_VERSION} INTEGER NOT NULL
+            )
+            """
+        )
+
         self.con.commit()
         cursor.close()
 
@@ -74,6 +111,9 @@ class DbHelper:
         cursor = self.con.cursor()
         cursor.execute(f"DROP TABLE IF EXISTS {DOWNLOADS_TABLE};")
         cursor.execute(f"DROP TABLE IF EXISTS {USERS_TABLE};")
+        cursor.execute(f"DROP TABLE IF EXISTS {SCRAPE_TABLE};")
+        cursor.execute(f"DROP TABLE IF EXISTS {APP_DATA_TABLE};")
+        
         self.con.commit()
         cursor.close()
         self.setup_db()
@@ -172,7 +212,7 @@ class DbHelper:
         self.con.close()
 
 if __name__ == "__main__":
-    db_helper = DbHelper()
+    db_helper = DbHelper(True)
     # db_helper.delete_total(USERS_TABLE)
     # db_helper.insert(USERS_TABLE, {
     #     USER_NAME: "James Garfield",
