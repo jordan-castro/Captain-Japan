@@ -1,13 +1,17 @@
+from backend.utils.default_title import default_title
+from backend.generator.pdf_generator import generate_pdf
 from backend.utils.downloader import download_manga
 from bs4 import BeautifulSoup
 from backend.browser.browse import InteractiveBrowser
+from selenium.webdriver.common.by import By
+from backend.scraping.req import make_GET_request
 
 
 class MangaKakalot:
     def __init__(self, connection=None):
         # MangaKakalot url
         self.kakalot_url = "https://mangakakalot.com/"
-        self.browser = connection or InteractiveBrowser(self.kakalot_url, True)
+        self.browser = connection or InteractiveBrowser(self.kakalot_url)
         # Each manga has their own way of defining the series
         # Is defined in find_manga()
         self.manga_path = None
@@ -41,7 +45,7 @@ class MangaKakalot:
             return False
         
         # Click the first one
-        story_titles[0].find_element_by_tag_name('a').click()
+        story_titles[0].find_element(By.TAG_NAME, 'a').click()
 
         # We have the path now set it!
         self.manga_path = f"{self.browser.current_url()}"
@@ -120,7 +124,12 @@ if __name__ == "__main__":
     for x in range(10):
         chapters.append(x+1)
 
-    download_manga(manga.manga_title, chapters, manga)
+    downloads = download_manga(manga.manga_title, chapters, manga)
+    
+
+    files = [download.location for download in downloads]
+    generate_pdf(files, default_title(manga.manga_title), manga=True)
+    # generate_epub(files, f"{default_title(wuxia.novel_title)}-epub")
 
     # downloads = manga.download(chapters)
     # db = DbHelper(True)
