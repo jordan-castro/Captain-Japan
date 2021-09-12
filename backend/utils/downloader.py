@@ -47,11 +47,9 @@ def download_novel(novel_title, chapters, scrape_method, async_=True):
             file_path = generate_html_file(chapter_data, file_name, directory=title)
             downloads.append(
                 Download(
-                    title=title,
                     name=file_name,
                     location=file_path,
-                    image=None,
-                    download_type=1,
+                    user_id=1
                 )
             )
     else:
@@ -64,11 +62,9 @@ def download_novel(novel_title, chapters, scrape_method, async_=True):
             # Add to downloads
             downloads.append(
                 Download(
-                    title=title,
                     name=file_name,
                     location=file_path,
-                    image=None,
-                    download_type=1
+                    user_id=1
                 )
             )
 
