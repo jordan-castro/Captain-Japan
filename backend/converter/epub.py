@@ -20,8 +20,8 @@ class Epub:
         # Set in self.add_intro()
         self.intro = None
 
-        self.path = novels_dir() + f"{self.title}/" + self.id + ".epub"
-        create_if_missing(novels_dir() + self.title)
+        self.path = novels_dir(True) + f"{self.title}/" + self.id + ".epub"
+        create_if_missing(novels_dir(True) + self.title)
 
         # Setup the book
         self.__setup()
@@ -101,11 +101,7 @@ class Epub:
                 )
             )
         # Now add the chapters (Kinda sorta)
-        chapters = [
-            epub.Section("Hombre"),
-            self.chapters
-        ]
-        toc.append(chapters)
+        toc.append(self.chapters)
 
         # Now add to the Tupple
         toc = tuple([tuple(t) for t in toc])

@@ -2,8 +2,8 @@ from backend.data.dir import manga_dir, novels_dir
 import subprocess
 import os
 from pathlib import Path
-from glob import glob
 import codecs
+from PIL import Image
 
 
 NOVEL_PDF = 0
@@ -15,11 +15,13 @@ class PDF:
         self.name = pdf_name
         
         if pdf_type == NOVEL_PDF:
-            self.path = novels_dir() + self.name + "-pdf"
+            self.path = novels_dir(True) + self.name
         elif pdf_type == MANGA_PDF:
-            self.path = manga_dir() + self.name + "-pdf"
+            self.path = manga_dir(True) + self.name
+            # Let the class know we are generating MANGA PDF
+            self.manga = True
 
-        self.files = glob(f"{self.path}/*.html")
+        self.files = []
 
         # Check if the path to the PDF exists or not
         if not Path(self.path).exists():
@@ -54,6 +56,8 @@ class PDF:
         Params:
             - <image_path: str> The path to the Image file.
         """
+        # Just add the image
+        self.files.append(image_path)
     
     def build(self):
         """
@@ -61,17 +65,32 @@ class PDF:
 
         Returns: <pdf_path: str>
         """
-        # Check if we have more than one file
-        if len(self.files) > 1:
-            self.__combine_files()
-        
         finished_pdf_path = f"{self.path}/{self.name}.pdf"
+        
+        # Check if we are building Manga or Novel
+        if not self.manga:
+            # Check if we have more than one file
+            if len(self.files) > 1:
+                self.__combine_files()
+        
+            command = f"wkhtmltopdf {self.path}/pdf.html {finished_pdf_path}"
+            subprocess.call(command, shell=True)
+        else:
+            # Generating Manga
+            images = []
+            # Loop through the images
+            for file in self.files:
+                img = Image.open(file)
+                img = img.convert('RGB')
+                images.append(img)
+            # Now save the images
+            manga_image = images[0]
+            manga_image.save(finished_pdf_path, save_all=True, append_images=images)
 
-        command = f"wkhtmltopdf {self.path}/pdf.html {finished_pdf_path}"
-        subprocess.call(command, shell=True)
-
-        # Now remove the pdf.html
-        os.unlink(f"{self.path}/pdf.html")
+        # And delete everything other than the .pdf
+        for file in os.listdir(self.path):
+            if not file is f"{self.name}.pdf":
+                os.unlink(file)
 
         return finished_pdf_path
 
