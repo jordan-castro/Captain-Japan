@@ -1,4 +1,5 @@
 ### Scrape https://www.lightnovelpub.com/
+from backend.generator.epub_generator import generate_epub
 from backend.generator.pdf_generator import generate_pdf
 from backend.utils.downloader import download_novel
 from backend.browser.browse import InteractiveBrowser
@@ -122,4 +123,4 @@ if __name__ == "__main__":
     downloads = download_novel(novel_pub.novel_title, chapters, novel_pub.scrape, async_=False)
 
     files = [download.location for download in downloads]
-    generate_pdf(files, default_title(novel_pub.novel_title))
+    generate_epub(files, default_title(novel_pub.novel_title))
