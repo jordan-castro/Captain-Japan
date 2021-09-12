@@ -2,7 +2,7 @@
 from backend.converter.pdf import PDF, NOVEL_PDF, MANGA_PDF
 
 
-def generate_pdf(files, output, novel=True, manga=False):
+def generate_pdf(files, output, novel=False, manga=False):
     """
     Generate a PDF file.
 
