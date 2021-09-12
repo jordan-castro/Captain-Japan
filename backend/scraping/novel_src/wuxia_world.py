@@ -78,7 +78,7 @@ class WuxiaScraper:
         else:
             self.browser.change_page(url_with_chapter_number)
 
-    def scrape_wuxia(self, chapter):
+    def scrape(self, chapter):
         """
         Scrape the Wuxia World website based on the tile of the series and chapter numbers.
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     chapters = []
     for x in range(8, 50):
         chapters.append(x + 1)
-    downloads = download_novel(wuxia.novel_title, chapters, wuxia.scrape_wuxia)
+    downloads = download_novel(wuxia.novel_title, chapters, wuxia.scrape)
     
     files = [download.location for download in downloads]
     generate_epub(files, f"{default_title(wuxia.novel_title)}-epub")
