@@ -115,5 +115,4 @@ class Epub:
         self.book.add_item(ncx)
         self.book.add_item(nav)
         # Now write the epub
-        print(self.path)
         epub.write_epub(self.path, self.book)
