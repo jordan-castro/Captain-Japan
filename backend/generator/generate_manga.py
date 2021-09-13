@@ -16,7 +16,7 @@ def generate_manga(data, directory):
     Return: <list(str)> image paths.
     """
     base_path = f"{manga_dir()}{directory}"
-    chapter_path = f"{base_path}/Chapter_{data[0]}"
+    chapter_path = f"{base_path}/{data['chapter_title']}"
 
     # Check if directory does not exists
     if not Path(base_path).exists():
@@ -31,13 +31,13 @@ def generate_manga(data, directory):
     image_paths = []
 
     # Loop through image data passed
-    for image in data[1]:
+    for image in data['chapter_body']:
         # Generate image path
-        image_path = f"{chapter_path}/image_{data[1].index(image)}.png"
+        image_path = f"{chapter_path}/image_{data['chapter_body'].index(image)}.png"
         image_paths.append(image_path)
 
         # Write images in threads
-        t = Thread(target=generate_image, args=(image.content, image_path))
+        t = Thread(target=__generate_image, args=(image.content, image_path))
         threads.append(t)
         t.start()
     
@@ -48,7 +48,7 @@ def generate_manga(data, directory):
     return image_paths
 
 
-def generate_image(image_data, path):
+def __generate_image(image_data, path):
     """
     Generate a image.
 
