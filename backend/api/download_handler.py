@@ -1,5 +1,5 @@
 # Api to handle downloads
-from backend.utils.downloader import download_novel
+from backend.utils.downloader import download_manga, download_novel
 from backend.api.sources import LIGHT_NOVEL_PUB, MANGA_KAKALOT, WUXIA_WORLD
 from backend.scraping.novel_src.wuxia_world import WuxiaScraper
 from backend.scraping.novel_src.light_novel_pub import LightNovelPub
@@ -37,28 +37,6 @@ def handle_download(title: str, type: int, d_range: list, source: str, scraped_i
         else:
             # BAKA! We only have these ^ sources available RN!
             return []
-
-        # Do the scraping
-        hit = scraper.find_novel(title)
-        # Check if not hit
-        if not hit:
-            # BAKA! Something went wrong
-            return []
-        # Set chapters to download
-        chapters = []
-        for x in d_range:
-            if x in blacklist:
-                continue
-            chapters.append(x)
-        # Do the actual downloading
-        _downloads = download_novel(scraper.novel_title, chapters, scraper.scrape, async_=async_)
-        # Save the downloads
-        for download in _downloads:
-            db.insert(DOWNLOADS_TABLE, download.sql_format(scraped_id))
-
-        # Grab the downloads from the database
-        downloads = db.query_specific(DOWNLOADS_TABLE, where=f"{DOWNLOAD_SCRAPE_ID} = {scraped_id}")
-
     elif type == 1:
         # Manga stuff
         if source == MANGA_KAKALOT:
@@ -69,6 +47,36 @@ def handle_download(title: str, type: int, d_range: list, source: str, scraped_i
     else:
         # BAKA! Anime scraping not implemented yet.
         return []
+
+
+    # Do the scraping
+    hit = scraper.find(title)
+    # Check if not hit
+    if not hit:
+        # BAKA! Something went wrong
+        return []
+    # Set chapters to download
+    chapters = []
+    for x in d_range:
+        if x in blacklist:
+            continue
+        chapters.append(x)
+        
+    # Do the actual downloading
+    if type == 0:
+        _downloads = download_novel(scraper.novel_title, chapters, scraper.scrape, async_=async_)
+    elif type == 1:
+        _downloads = download_manga(scraper.manga_title, chapters, scraper)
+    else:
+        # BAKA! No anime source yet. COMING SOON! CHOTO MATE!
+        return []
+
+    # Save the downloads
+    for download in _downloads:
+        db.insert(DOWNLOADS_TABLE, download.sql_format(scraped_id))
+
+    # Grab the downloads from the database
+    downloads = db.query_specific(DOWNLOADS_TABLE, where=f"{DOWNLOAD_SCRAPE_ID} = {scraped_id}")
 
     # Close database and return downloads
     db.close_db()
