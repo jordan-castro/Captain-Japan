@@ -1,56 +1,47 @@
-from backend.utils.default_title import default_title
-from backend.generator.pdf_generator import generate_pdf
-from backend.utils.downloader import download_manga
+from backend.utils.downloader import Downloader
+from backend.scraping.scraper_base import Scraper
 from bs4 import BeautifulSoup
-from backend.browser.browse import InteractiveBrowser
 from selenium.webdriver.common.by import By
 from backend.scraping.req import make_GET_request
 
 
-class MangaKakalot:
-    def __init__(self, connection=None):
-        # MangaKakalot url
-        self.kakalot_url = "https://mangakakalot.com/"
-        self.browser = connection or InteractiveBrowser(self.kakalot_url)
-        # Each manga has their own way of defining the series
-        # Is defined in find_manga()
-        self.manga_path = None
+class MangaKakalot(Scraper):
+    def __init__(self, browser=None):
         self.manganato = False
-        # Is also defined in find_manga()
-        self.manga_title = None
+        super().__init__("https://mangakakalot.com/", 1, False, browser)
 
-    def find_manga(self, manga_title):
+    def find(self, manga_title):
         """
         Find a manga on MangaKakalot web page.
 
         Params:
-            - <manga_title: str> the title of the manga
+            - <title: str> the title of the manga
 
         Return: <bool>
         """
         # Check if we are at the Kakalot url
-        if self.browser.current_url() != self.kakalot_url:
-            self.browser.change_page(self.kakalot_url)
-        
+        if self.current_url() != self.source:
+            self.change_page(self.source)
+
         # Set title of manga
-        self.manga_title = manga_title
+        self.title = manga_title
         # Search for manga
-        search_url = f"{self.kakalot_url}search/story/{self.manga_title.replace(' ', '_').lower()}"
+        search_url = f"{self.source}search/story/{self.title.replace(' ', '_').lower()}"
         # Move to page
-        self.browser.change_page(search_url)
+        self.change_page(search_url)
         # Search page for tag
-        story_titles = self.browser.grab_data_from_tags(("class", "story_name"))
-        
+        story_titles = self.grab_data_from_tags(("class", "story_name"))
+
         if len(story_titles) == 0:
             return False
-        
+
         # Click the first one
         story_titles[0].find_element(By.TAG_NAME, 'a').click()
 
         # We have the path now set it!
-        self.manga_path = f"{self.browser.current_url()}"
+        self.chapter_path = f"{self.current_url()}"
         # Check if url contains readmanganato
-        if "readmanganato" in self.manga_path:
+        if "readmanganato" in self.chapter_path:
             self.manganato = True
 
         return True
@@ -67,11 +58,11 @@ class MangaKakalot:
         # Check if readmangano is tru
         if self.manganato:
             seperater = "-"
-            url = f"{self.manga_path}/chapter{seperater}{chapter}"
+            url = f"{self.chapter_path}/chapter{seperater}{chapter}"
         else:
             seperater = "_"
-            manga_id = self.manga_path.split('/')[-1]
-            url = f"{self.kakalot_url}chapter/{manga_id}/chapter{seperater}{chapter}"
+            manga_id = self.chapter_path.split('/')[-1]
+            url = f"{self.source}chapter/{manga_id}/chapter{seperater}{chapter}"
 
         return url
 
@@ -100,35 +91,37 @@ class MangaKakalot:
                 continue
 
             image_data = make_GET_request(
-                image['src'], 
-                headers={"Referer": self.kakalot_url}
-            )            
+                image['src'],
+                headers={"Referer": self.source}
+            )
             chapter_images[chapter_images.index(image)] = image_data
 
-        # Close internal browser
+        # Close internal
 
-        return [
-            chapter,
-            chapter_images
-        ]
+        return {
+            "chapter_title": chapter,
+            "chapter_body": chapter_images
+        }
 
 
 if __name__ == "__main__":
     manga = MangaKakalot()
-    hit = manga.find_manga("Return of the 8th class magician")
+    hit = manga.find("Return of the 8th class magician")
     if not hit:
-        print(f"Could not find {manga.manga_title}")
-    
+        print(f"Could not find {manga.title}")
+
     chapters = []
 
     for x in range(10):
         chapters.append(x+1)
 
-    downloads = download_manga(manga.manga_title, chapters, manga)
-    
+    downloader = Downloader()
+    downloader.download(manga.title, chapters, manga, 1) 
 
-    files = [download.location for download in downloads]
-    generate_pdf(files, default_title(manga.manga_title), manga=True)
+    # downloads = download_manga(manga.title, chapters, manga)
+
+    # files = [download.location for download in downloads]
+    # generate_pdf(files, default_title(manga.title), manga=True)
     # generate_epub(files, f"{default_title(wuxia.novel_title)}-epub")
 
     # downloads = manga.download(chapters)

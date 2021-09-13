@@ -1,25 +1,17 @@
 ### Scrape https://www.lightnovelpub.com/
+from backend.utils.downloader import Downloader
+from backend.scraping.scraper_base import Scraper
 from backend.generator.epub_generator import generate_epub
-from backend.generator.pdf_generator import generate_pdf
-from backend.utils.downloader import download_novel
-from backend.browser.browse import InteractiveBrowser
 from backend.utils.default_title import default_title
 from bs4 import BeautifulSoup
 
 
-class LightNovelPub(InteractiveBrowser):
-    def __init__(self, debug=None, browser=None):
-        # The initial URL
-        self.pub_url = "https://www.lightnovelpub.com/search"
-        
-        # Declared in find_novel()
-        self.chapter_path = None
+class LightNovelPub(Scraper):
+    def __init__(self, browser=None):
         self.novel_path = None
-        self.novel_title = None
-
-        super().__init__(initial_url=self.pub_url, debug=debug, browser=browser)
+        super().__init__("https://www.lightnovelpub.com/search", 0, False, browser)
         
-    def find_novel(self, novel_title):
+    def find(self, novel_title):
         """
         Find the novel and setup the class variables.
 
@@ -29,11 +21,11 @@ class LightNovelPub(InteractiveBrowser):
         Return: <bool>
         """
         # Check if we are not at the right url
-        if self.current_url() != self.pub_url:
-            self.change_page(self.pub_url)
+        if self.current_url() != self.source:
+            self.change_page(self.source)
 
         # The title of the novel default
-        self.novel_title = default_title(novel_title)
+        self.title = default_title(novel_title)
 
         # Search the page and find the novel
         results = self.send_search(("id", "inputContent"), novel_title, ("class", "novel-item"))
@@ -110,7 +102,7 @@ class LightNovelPub(InteractiveBrowser):
 
 if __name__ == "__main__":
     novel_pub = LightNovelPub()
-    hit = novel_pub.find_novel("The beginning after the end")
+    hit = novel_pub.find("The beginning after the end")
     
     if not hit:
         print(hit)
@@ -119,8 +111,9 @@ if __name__ == "__main__":
     chapters = []
     for x in range(20):
         chapters.append(x+1)
-    
-    downloads = download_novel(novel_pub.novel_title, chapters, novel_pub.scrape, async_=False)
+   
+    d = Downloader() 
+    downloads = d.download(novel_pub.title, chapters, novel_pub, 0, False)
 
-    files = [download.location for download in downloads]
-    generate_epub(files, default_title(novel_pub.novel_title))
+    # files = [download.location for download in downloads]
+    # generate_epub(files, default_title(novel_pub.title))
