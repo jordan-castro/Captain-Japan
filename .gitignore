@@ -129,7 +129,6 @@ dmypy.json
 .pyre/
 .vscode/c_cpp_properties.json
 .vscode/settings.json
-backend/scraped_data/novels/
-backend/scraped_data/manga/
-backend/scraped_data/anime/
-backend/data/cptjpn.db
+scraped_data/
+cptjpn.db
+scraped
