@@ -12,7 +12,7 @@ import time
 class ReadNovelFull(Scraper):
     def __init__(self, browser=None):
         self.chapter_paths = []
-        super().__init__("https://readnovelfull.com", 0, True, browser)
+        super().__init__("https://readnovelfull.com", 0, False, browser)
 
     def find(self, novel_title):
         """
@@ -128,7 +128,7 @@ class ReadNovelFull(Scraper):
 
         # Chequea que tocamos a chapter_title
         if chapter_title:
-            data['chapter_title'] = chapter_title.text
+            data['chapter_title'] = f'Chapter {chapter}' # Todo ~!!!~
 
         # Now return
         return data
