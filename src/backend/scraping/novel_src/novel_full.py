@@ -1,4 +1,5 @@
 ### Source to scraoe the ReadNovelFull.com website
+from src.backend.utils.chapter_titles import clean_title
 from src.backend.utils.default_title import default_title
 from src.backend.generator.epub_generator import generate_epub
 from src.backend.utils.downloader import Downloader
@@ -128,7 +129,7 @@ class ReadNovelFull(Scraper):
 
         # Chequea que tocamos a chapter_title
         if chapter_title:
-            data['chapter_title'] = f'Chapter {chapter}' # Todo ~!!!~
+            data['chapter_title'] = clean_title(chapter_title.text)
 
         # Now return
         return data
