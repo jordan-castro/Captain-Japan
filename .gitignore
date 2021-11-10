@@ -107,6 +107,7 @@ celerybeat.pid
 env/
 venv/
 ENV/
+cjenv/
 env.bak/
 venv.bak/
 
@@ -132,3 +133,4 @@ dmypy.json
 scraped_data/
 cptjpn.db
 scraped
+*.whl

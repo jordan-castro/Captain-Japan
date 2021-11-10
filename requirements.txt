@@ -1,0 +1,57 @@
+appdirs @ file:///home/conda/feedstock_root/build_artifacts/appdirs_1603108395799/work
+argcomplete==1.12.3
+attrs @ file:///home/conda/feedstock_root/build_artifacts/attrs_1620387926260/work
+Automat==20.2.0
+autopep8==1.5.7
+bcrypt @ file:///D:/bld/bcrypt_1636021377696/work
+beautifulsoup4 @ file:///tmp/build/80754af9/beautifulsoup4_1631874778482/work
+brotlipy==0.7.0
+certifi==2021.10.8
+cffi @ file:///C:/ci/cffi_1625831756778/work
+charset-normalizer==2.0.7
+colorama==0.4.4
+configparser==5.1.0
+constantly==15.1.0
+crayons==0.4.0
+cryptography @ file:///C:/ci/cryptography_1635366712888/work
+cssselect==1.1.0
+hyperlink @ file:///home/conda/feedstock_root/build_artifacts/hyperlink_1610092164190/work
+idna @ file:///tmp/build/80754af9/idna_1622654382723/work
+incremental @ file:///home/conda/feedstock_root/build_artifacts/incremental_1621907170877/work
+itemadapter @ file:///home/conda/feedstock_root/build_artifacts/itemadapter_1630045170822/work
+lxml @ file:///D:/bld/lxml_1635962209970/work
+mkl-fft==1.3.1
+mkl-random @ file:///C:/ci/mkl_random_1626186184308/work
+mkl-service==2.4.0
+numpy @ file:///C:/ci/numpy_and_numpy_base_1634088717532/work
+olefile @ file:///Users/ktietz/demo/mc3/conda-bld/olefile_1629805411829/work
+packaging==21.0
+parsel @ file:///home/conda/feedstock_root/build_artifacts/parsel_1591122878042/work
+Pillow==8.4.0
+pipx==0.16.3
+pyasn1==0.4.8
+pyasn1-modules==0.2.7
+pycodestyle==2.7.0
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+PyDispatcher==2.0.5
+pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1635333100036/work
+PySocks @ file:///C:/ci/pysocks_1605307512533/work
+pywin32==302
+queuelib @ file:///home/conda/feedstock_root/build_artifacts/queuelib_1629994290383/work
+requests==2.26.0
+Scrapy @ file:///C:/ci/scrapy_1632767794303/work
+selenium @ file:///C:/ci/selenium_1614268120390/work
+service-identity==18.1.0
+six @ file:///tmp/build/80754af9/six_1623709665295/work
+soupsieve @ file:///tmp/build/80754af9/soupsieve_1616183228191/work
+toml==0.10.2
+Twisted @ file:///D:/bld/twisted_1628426476135/work
+twisted-iocpsupport @ file:///D:/bld/twisted-iocpsupport_1635853289332/work
+typing-extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1632313171031/work
+urllib3==1.26.7
+userpath==1.6.0
+w3lib @ file:///home/conda/feedstock_root/build_artifacts/w3lib_1591173357158/work
+webdriver-manager==3.5.2
+win-inet-pton @ file:///C:/ci/win_inet_pton_1605306162074/work
+wincertstore==0.2
+zope.interface @ file:///D:/bld/zope.interface_1635859661503/work
