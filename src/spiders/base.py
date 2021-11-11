@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from src.spiders.tag import Tag
 from src.spiders.website import Website, ScrapeType
 from bs4 import BeautifulSoup
+import time
 
 
 class Base:
@@ -70,7 +71,7 @@ class BaseScraper(Base):
 
     def __init__(self, website: Website, debug: bool = False) -> None:
         self.website = website
-        self.browser = self.__setup__(self.website.base_url, debug)
+        self.browser = self.__setup__(debug)
         
     def __del__(self):
         """
@@ -105,13 +106,11 @@ class BaseScraper(Base):
         """
         return BeautifulSoup(self.page_content, "html.parser")
 
-    def __setup__(self, url: str, debug: bool):
+    def __setup__(self, debug: bool):
         """
         Setup the browser.
 
         Params:
-            - url: str
-                The base url to start at.
             - debug: bool
                 Whether to show the browser in debug mode.
         
@@ -133,21 +132,22 @@ class BaseScraper(Base):
         # Bypass cloudflare detection.
         browser.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-        # Go to the url.
-        browser.get(url)
-
         # Return the browser.
         return browser
 
-    def change_page(self, url: str):
+    def change_page(self, url: str, sleep=True):
         """
         Change the page.
 
         Params:
             - url: str
                 The url to change to.
+            - sleep: bool
+                Whether to sleep after changing the page.
         """
         self.browser.get(url)
+        if sleep:
+            time.sleep(2)
 
     def get(self, tag: Tag):
         """
@@ -223,20 +223,42 @@ class BaseScraper(Base):
         Get the title of the manga or novel.
         """
         soup = self.soup_object
-        # Get the title.
-        title = soup.find(self.website.title_tag.tag_type, self.website.title_tag.tag_value).text
-        # Return the title.
-        return title
+        try:
+            # Get the title.
+            title = soup.find(self.website.title_tag.tag, {self.website.title_tag.tag_type_soup: self.website.title_tag.tag_value}).text
+            # Return the title.
+            return title
+        except AttributeError:
+            # Return None.
+            return None
+
+    def get_description(self):
+        """
+        Get the description of the manga or novel.
+        """
+        soup = self.soup_object
+        try:
+            # Get the description.
+            description = soup.find(self.website.description_tag.tag, {self.website.description_tag.tag_type_soup: self.website.description_tag.tag_value}).text
+            # Return the description.
+            return description
+        except AttributeError:
+            # Return None.
+            return None
 
     def get_main_body(self):
         """
         Get the main body of the page where the magic happens! (Where the data we scrape is)
         """
         soup = self.soup_object
-        # Get the main body.
-        main_body = soup.find(self.website.main_body_tag.tag_type, self.website.main_body_tag.tag_value)
-        # Return the main body.
-        return main_body
+        try:
+            # Get the main body.
+            main_body = soup.find(self.website.main_body_tag.tag, {self.website.main_body_tag.tag_type_soup: self.website.main_body_tag.tag_value}).text
+            # Return the main body.
+            return main_body
+        except AttributeError:
+            # Return None.
+            return None
 
     def get_chapter_links(self):
         """
@@ -245,10 +267,13 @@ class BaseScraper(Base):
         Returns: list[str]
         """
         soup = self.soup_object
-        # Get the chapter links.
-        chapter_links = soup.find_all(self.website.chapters_tag.tag_type, self.website.chapters_tag.tag_value)
-        # Parse each chapter link and grab the href that it points to.
-        chapter_links = [c.find("a")["href"] for c in chapter_links]        
-        
-        # Return the chapter links.
-        return chapter_links
+        try:
+            # Get the chapter links.
+            chapter_links = soup.find_all(self.website.chapter_link_tag.tag, {self.website.chapter_link_tag.tag_type_soup: self.website.chapter_link_tag.tag_value})
+            # Convert the chapter links to a list of strings with the HREF.
+            # chapter_links = [c["href"] for c in chapter_links]
+            # Return the chapter links.
+            return chapter_links
+        except AttributeError:
+            # Return None.
+            return None
