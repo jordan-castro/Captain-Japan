@@ -14,7 +14,7 @@ class NovelSpider(BaseScraper):
         - website (Website): The website to scrape.
         - specials (Specials): The specials to scrape.
 
-    # Properties:
+    // Properties:
 
     Methods:
         -> check Base
@@ -50,19 +50,10 @@ class NovelSpider(BaseScraper):
             return
         # Change the page to the result.
         self.change_page(url)
-        print(self.get_chapter_links())
+        self.load_chapters(self.get_chapter_links())
         
-    def load_chapters(self):
-        if self.specails.load_chapters:
-            self.specails.load_chapters()
-
-        # Grab all the chapters from the website.
-        # The chapters are found based on the Tag.
-        chapters_page = self.soup_object
-
-        # Scrape the page for all the chapters.
-        chapters = chapters_page.find_all(self.website.chapters_tag.tag_type, self.website.chapters_tag.tag_value)
-        print("Nigga chapters ", chapters)
+    def load_chapters(self, chapters=None):
+        pass
 
     def build_url(self, chapter: int):
         if self.specails.build_url:
@@ -83,7 +74,11 @@ if __name__ == "__main__":
     title_tag = Tag(By.CLASS_NAME, "title", 'h3')
     description_tag = Tag(By.CLASS_NAME, "desc-text", 'div')
     chapters_tag = Tag(By.CLASS_NAME, 'list-chapter', 'ul')
-    website = Website("https://novelfull.com/", title_tag, None, None, chapters_tag, description_tag, ScrapeType.NOVEL)
+    chapters_args = {
+        "types": ["page"],
+        "values": ["0"] # Staring page!,
+    }
+    website = Website("https://novelfull.com/", title_tag, None, None, chapters_tag, description_tag, ScrapeType.NOVEL, chapters_args)
     spider = NovelSpider(website, Specials())
 
-    spider.search_title("The Second Coming of Gluttony", "Read Novel Full")
+    spider.search_title("THE BEGINNING AFTER THE END", "Read Novel Full")
