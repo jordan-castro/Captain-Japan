@@ -1,6 +1,7 @@
 import enum
+from julia import Main
 
-from src.spiders.tag import Tag, Args
+from src.spiders.tag import Tag
 
 
 class ScrapeType(enum.Enum):
@@ -22,7 +23,7 @@ class Website:
         chapters_tag: Tag, 
         description_tag: Tag, 
         scrape_type: ScrapeType,
-        chapters_args: Args=None
+        chapters_args: dict=None
     ) -> None:
         self.base_url = base_url
         self.title_tag = title_tag
@@ -32,3 +33,22 @@ class Website:
         self.description_tag = description_tag
         self.scrape_type = scrape_type
         self.chapters_args = chapters_args
+        
+        self.__setup__()
+
+    def __setup__(self):
+        # Set up the julia scripts
+        if self.chapters_args:
+            Main.include("src/utils/WebsiteUtils.jl")
+
+
+    def chapter_url(self, current_url) -> str:
+        """
+        Return the chapter url of the current url.
+
+        Args:
+            current_url (str): The current url.
+
+        Returns: str 
+        """
+        return Main.chapterurl(current_url, self.chapters_args['types'], self.chapters_args['values'])
