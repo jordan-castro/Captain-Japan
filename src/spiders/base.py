@@ -1,7 +1,10 @@
 from abc import abstractmethod
+from re import split
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+from src.spiders import website
 from src.spiders.tag import Tag
 from src.spiders.website import Website, ScrapeType
 from bs4 import BeautifulSoup
@@ -13,7 +16,7 @@ class Base:
     Abstract class for specific methods with the scrapers.
     """
     @abstractmethod
-    def load_chapters(self):
+    def load_chapters(self, chapters=None):
         """
         Get the chapters.
         """
@@ -264,16 +267,26 @@ class BaseScraper(Base):
         """
         Get the chapter links.
 
-        Returns: list[str]
+        Returns: list[str] | list[WebElement]
         """
-        soup = self.soup_object
-        try:
+        # This method does not know how to get the link of the source.
+        if self.website.base_url not in self.current_url:
+            raise(
+                Exception("The current url is not from the base.")
+            )
+
+        # Check if the Wesbite has a chapters_args
+        if self.website.chapters_args is None:
+            # We just need to do a soup object
+            soup = self.soup_object
             # Get the chapter links.
-            chapter_links = soup.find_all(self.website.chapter_link_tag.tag, {self.website.chapter_link_tag.tag_type_soup: self.website.chapter_link_tag.tag_value})
-            # Convert the chapter links to a list of strings with the HREF.
-            # chapter_links = [c["href"] for c in chapter_links]
+            chapter_links = soup.find(self.website.chapters_tag.tag, {self.website.chapters_tag.tag_type_soup: self.website.chapters_tag.tag_value})
             # Return the chapter links.
+            return [c["href"] for c in chapter_links.find_all("a")]
+        else:
+            # We need to use Selenium
+            self.change_page(self.website.chapter_url(self.current_url))
+            # Get the chapter links.
+            chapter_links = self.get_elements(self.website.chapters_tag)
+            # Parsing must be done on reciever
             return chapter_links
-        except AttributeError:
-            # Return None.
-            return None
