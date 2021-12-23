@@ -1,7 +1,8 @@
 # The actual database class that we use.
 import sqlite3
-from cj.data.conn import COL_NOVEL_COVER, COL_NOVEL_ID, COL_NOVEL_LOCATION, COL_NOVEL_TITLE, DB, TABLE_NOVELS
+from cj.data.conn import COL_MANGA_TITLE, COL_NOVEL_COVER, COL_NOVEL_ID, COL_NOVEL_LOCATION, COL_NOVEL_TITLE, DB, TABLE_MANGAS, TABLE_NOVELS
 from cj.objects.novel import Novel
+from cj.utils.enums import CjType
 
 
 class CJDB(DB):
@@ -84,3 +85,31 @@ class CJDB(DB):
         except Exception as e:
             # print("Exception occured while updating novel: {} Exception was:".format(novel), e)
             return False
+
+    def search_title(self, title, tpe: CjType) -> list:
+        """
+        Search for a title in the DB.
+
+        Params:
+            - title(str): The title.
+            - tpe(CJType): The type of search.
+        
+        Returns:
+            - list
+        """
+        if tpe == CjType.NOVEL:
+            table = TABLE_NOVELS
+            col = COL_NOVEL_TITLE
+        elif tpe == CjType.MANGA:
+            table = TABLE_MANGAS
+            col = COL_MANGA_TITLE
+        elif tpe == CjType.ANIME:
+            raise NotImplementedError("Anime search is not implemented yet.")
+        
+        # The Query
+        query = f"""
+        SELECT * FROM {table}
+        WHERE {col} LIKE ?
+        """
+        # Execute and return the query
+        return self.query(query, (title,))
