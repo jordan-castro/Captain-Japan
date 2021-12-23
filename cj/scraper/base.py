@@ -20,6 +20,12 @@ class NoSoupException(Exception):
         super().__init__("Cannot find the soup element")
 
 
+class NoScrollException(Exception):
+    # This is an exception for when the Scrapper class has should_scroll set to False
+    def __init__(self):
+        super().__init__("self.should_scroll is False")
+
+
 class Scraper:
     """
     Implements the abstract Base class and handles some basic scraping neccesities.
@@ -131,6 +137,8 @@ class Scraper:
         """
         Scroll the page to the bottom.
         """
+        if not self.should_scroll:
+            raise NoScrollException
         if not self.js:
             raise NoJsException
 
