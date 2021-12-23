@@ -1,0 +1,13 @@
+{
+    "location": null,
+    "app_version": "0.0.1",
+    "app_name": "Captain Japan",
+    "app_id": "com.captainjapan.app",
+    "previous_version": "0.0.1",
+    "path": {
+        "source": null,
+        "ebook": null,
+        "pdf": null,
+        "mobi": null
+    } 
+}
