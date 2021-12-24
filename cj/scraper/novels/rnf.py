@@ -4,7 +4,7 @@ from typing import KeysView
 from cj.scraper.novel_base import NovelBase
 from selenium.webdriver.common.by import By
 
-from cj.utils.chapter import Chapter
+from cj.objects.chapter import Chapter
 
 
 class RNF(NovelBase):
@@ -32,7 +32,7 @@ class RNF(NovelBase):
         self.current_url = url + "#tab-chapters-title"
         try:
             # Get a soup object
-            soup = self.soup(5)
+            soup = self.soup()
             # Get the chapters
             chapters_holder = soup.find('div', {'class': chapters_loc})
             # Get the chapters rows here
@@ -47,8 +47,10 @@ class RNF(NovelBase):
                     # Get the chapter url 'href' and title
                     chapter_href = a.get('href')
                     chapter_title = a.get('title')
+                    # Get the chapter number
+                    chapter_number = self._format_chapter_number(chapter_title, len(self.chapters))
                     # Add this chapter to the chapters list
-                    chapter = Chapter(chapter_href, None, chapter_title)
+                    chapter = Chapter(chapter_href, chapter_number, chapter_title)
                     self.chapters.append(chapter)
         except Exception as e:
             print("Error is {}".format(e))
@@ -57,29 +59,31 @@ class RNF(NovelBase):
             return
 
     # TODO: NLP
-    def _format_chapter_number(self, chapter_title: str) -> int:
+    def _format_chapter_number(self, chapter_title: str, index: int) -> int:
         """
         Format the number of the chapter.
 
         Params:
             - chapter_title(str): The title of the chapter.
+            - index(int): The index of the chapter, what we might fall back on.
 
         Returns:
             - int the chapter number
         """
-        # Check if the chapter title is a number
-        if chapter_title.isnumeric():
-            return int(chapter_title)
+        return index
+        # # Check if the chapter title is a number
+        # if chapter_title.isnumeric():
+        #     return int(chapter_title)
         
-        # Find the first set of numbers in the chapter title
-        chapter_split = chapter_title.split(" ")
-        # Loop through the split
-        for data in chapter_split:
-            # Check if is numeric
-            if data.isnumeric():
-                return int(data)
+        # # Find the first set of numbers in the chapter title
+        # chapter_split = chapter_title.split(" ")
+        # # Loop through the split
+        # for data in chapter_split:
+        #     # Check if is numeric
+        #     if data.isnumeric():
+        #         return int(data)
 
-    def scrape(self, chapter: int) -> str:
+    def scrape(self, chapter: Chapter) -> Chapter:
         chapter_container = {
             "tag": "div",
             "selector": "id",
@@ -89,10 +93,10 @@ class RNF(NovelBase):
             }
         }
         # build the url
-        url = self.build_url(chapter)
+        url = self.build_url(chapter.number)
 
-        self.should_scroll = True
-        self.scroll_distance = 1000
+        self.set_should_scroll(True)
+        self.set_scroll_distance(1000)
         # Go to the url
         soup = self.get_chapter(url)
         # Check if soup is None
@@ -108,12 +112,12 @@ class RNF(NovelBase):
         )
         # Get the body 
         body = chapter_content.find_all(chapter_container["text"]["tag"])
-        chapter_content = ""
+        chapter.body = ""
         # Get the text
         for text in body:
-            chapter_content += text.text + "\n"
+            chapter.body += text.text.strip() + "\n\n"
         # Return the text
-        return chapter_content
+        return chapter
 
     def build_url(self, chapter: int) -> str:
         # Check that the chapter number is in the list
@@ -134,7 +138,9 @@ class RNF(NovelBase):
         # Enter the search query
         search_field.submit()
         # Wait for the search results to load
-        self.wait(2)
+        self.set_should_wait(True)
+        self.set_wait_time(5)
+        self.wait()
 
         # Lets get the results
         novel_titles = self.driver.find_elements(By.CLASS_NAME, "novel-title")

@@ -1,8 +1,10 @@
 from cj.data.conn import COL_NOVEL_ID, COL_NOVEL_TITLE, COL_NOVEL_LOCATION, COL_NOVEL_COVER
-from cj.utils.json import from_json, to_json
+from cj.objects.source import Source
+from cj.utils.enums import CjType
+from cj.utils.json import to_json
 
 
-class Novel(object):
+class Novel(Source):
     _id: int = None
     title: str = None
     location: str = None
@@ -13,34 +15,16 @@ class Novel(object):
         self.title = title
         self.location = location
         self.cover = cover
-
-    def __str__(self) -> str:
-        return f"Novel: {self.title}"
-    
-    def __repr__(self) -> str:
-        return f"Novel(id={self._id}, title={self.title}, location={self.location}, cover={self.cover})"
-    
-    def __eq__(self, other: object) -> bool:
-        return self._id == other._id and self.title == other.title and self.location == other.location and self.cover == other.cover
+        self.cj_type = CjType.NOVEL
 
     @staticmethod
-    def from_json(json):
-        """
-        Create a Novel object from some json (dict) data. Works really well with SQL queries as well.
-
-        Params:
-            - json(str): The json (dict).
-
-        Returns:
-            - Novel
-        """
-        return from_json(json, Novel)
-        # return Novel(
-            # json[COL_NOVEL_ID],
-            # json[COL_NOVEL_TITLE],
-            # json[COL_NOVEL_LOCATION],
-            # json[COL_NOVEL_COVER]
-        # )
+    def from_json(json) -> Source:
+        return Novel(
+            json[COL_NOVEL_ID],
+            json[COL_NOVEL_TITLE],
+            json[COL_NOVEL_LOCATION],
+            json[COL_NOVEL_COVER]
+        )
 
     def to_json(self):
         """
@@ -57,3 +41,13 @@ class Novel(object):
         }
 
         return to_json(data)
+
+
+if __name__ == "__main__":
+    novel = Novel.from_json({
+        'novel_id': 1,
+        'title': 'The Hobbit',
+        'location': 'http://www.example.com/hobbit.html',
+        'cover': 'http://www.example.com/hobbit.jpg'
+    })
+    print(novel.cover)

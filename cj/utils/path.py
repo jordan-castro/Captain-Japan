@@ -1,6 +1,6 @@
 from pathlib import Path
-from cj.objects.novel import Novel
 from cj.utils.settings import read_settings
+import os
 
 
 def create_dir(path):
@@ -12,10 +12,6 @@ def create_dir(path):
     """
     path = Path(path)
 
-    # Check that path is a directory
-    if not path.is_dir():
-        return
-
     # Check if the directory exists
     if path.exists():
         return
@@ -24,29 +20,33 @@ def create_dir(path):
     path.mkdir()
 
 
-def create_novel_path(novel: Novel):
+def delete_directory(path):
+    """
+    Delete a directory and it's contents.
+
+    Params:
+        - path(str): The path to the directory to delete.
+    """
+    p = Path(path)
+
+    # Check if the directory does not exist
+    if not p.exists():
+        return
+
+    # Delete the directory and it's contents
+    os.rmdir(path, recursive=True)
+
+
+def create_source_path(source, dir):
     """
     Create the directories of a novel.
     
     Params:
-        - novel(Novel): The Novel to create the directories for.
+        - source: The source to create the directories for.
+        - dir(str): The directory to create the directories in.
     """
-    # Get the novel path
-    novel_path = read_settings("path")['source'] + f'/novels/{novel.title}'
+    # Get the source path
+    source = read_settings("path")['source'] + f'/{dir}/{source.title}'
     # Create the novel directory
-    create_dir(novel_path)
-    return novel_path
-
-
-def create_chapter_path(chapter: int, parent: str):
-    """
-    Create the chapters of a parent (Novel, Manga, Anime)
-
-    Params:
-        - chapter(int): The chapter to create the directories for, this should be the index of the chapter.
-        - parent(str): The parent directory to create the chapter directories in.
-    """
-    # Get the chapter path
-    chapter_path = parent + f'/{chapter}'
-    # Create the chapter directory
-    create_dir(chapter_path)
+    create_dir(source)
+    return source

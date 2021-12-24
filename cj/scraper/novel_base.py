@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from cj.scraper.base import NoSoupException, Scraper
 from abc import abstractmethod
 
-from cj.utils.chapter import Chapter
+from cj.objects.chapter import Chapter
 
 
 class NovelBase(Scraper):
@@ -50,12 +50,12 @@ class NovelBase(Scraper):
         raise NotImplementedError
 
     @abstractmethod
-    def scrape(self, chapter: int) -> None:
+    def scrape(self, chapter) -> None:
         """
         Scrape the novel body for the chapter passed.
 
         Params:
-            - chapter(int): The chapter number to scrape.
+            - chapter(): The chapter number to scrape.
         """
         raise NotImplementedError
 
@@ -93,7 +93,9 @@ class NovelBase(Scraper):
         previous_url = self.current_url
         # Set the current url
         self.current_url = url
-        soup_object = self.soup(5)
+        self.set_wait_time(5)
+        self.set_should_wait(True)
+        soup_object = self.soup()
 
         # Raise a exception if the soup object is not found.
         if soup_object is None:

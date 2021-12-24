@@ -10,6 +10,7 @@ class Chapter(object):
     url: str = None
     number: int = None
     title: str = None
+    body: str = None
 
     def __init__(self, url: str=None, number: int=None, title: str=None):
         self.url = url

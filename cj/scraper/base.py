@@ -8,16 +8,15 @@ import time
 
 
 class NoJsException(Exception):
-    # This is an exception for when the scraper cannot find the javascript
-    # element.
+    # This is an exception for when the scraper cannot find the javascript element.
     def __init__(self):
-        super().__init__("Cannot try to click on an element without JavaScript")
+        super().__init__("JavaScript is not enabled.")
 
 
 class NoSoupException(Exception):
     # This is an exception for when the scraper cannot find the soup element.
     def __init__(self):
-        super().__init__("Cannot find the soup element")
+        super().__init__("Cannot create a BeautifulSoup object.")
 
 
 class NoScrollException(Exception):
@@ -47,7 +46,17 @@ class Scraper:
         self.driver = None
         self.scroll_distance = 250
         self.should_scroll = False
-        
+        self.should_wait = True
+        self.wait_time = 0.5
+
+        self.previous_scroll_distance = self.scroll_distance
+        self.previous_wait_time = self.wait_time
+        self.previous_should_scroll = self.should_scroll
+        self.previous_should_wait = self.should_wait
+
+        self.can_change_scroll = True
+        self.can_change_wait = True
+
         # If JS is enabled, setup the browser.
         if self.js:
             self._setup_js(headless)
@@ -75,18 +84,16 @@ class Scraper:
         self.driver.set_window_position(0, 0)
         self.driver.set_window_size(1920, 900)
 
-        # self.driver = Chrome(ChromeDriverManager().install(), options=options)
-
         # Load to the start url, which is currently self.current_url.
         self.driver.get(self.current_url)
 
-    def soup(self, t=0):
+    def soup(self):
         """
         Returns a BeatifulSoup object, based on the current page.
         """
         try:
             # Get the url source
-            source = self.get_url(self.current_url, True, t)
+            source = self.get_url(self.current_url, True)
             # Check if None
             if source is None:
                 return None
@@ -99,7 +106,7 @@ class Scraper:
             print(message)
             return None
 
-    def get_url(self, url, r=False, t=0):
+    def get_url(self, url, r=False):
         """
         Get a url's page html content.
 
@@ -115,7 +122,7 @@ class Scraper:
         try:
             if self.js:
                 self.driver.get(url)
-                self.wait(t)
+                self.wait()
                 # Check if we should scroll the page
                 if self.should_scroll:
                     # Scroll the page
@@ -155,8 +162,7 @@ class Scraper:
             self.driver.execute_script(f"window.scrollTo(0, {current_height + self.scroll_distance});")
             time.sleep(0.5)
         
-        # Set should_scroll to false
-        self.should_scroll = False
+        self.reset_scroll()
 
     def try_click(self, element, index:int=0):
         """
@@ -180,11 +186,48 @@ class Scraper:
         else:
             element.click()
 
-    def wait(self, t:int, func=None):
+    def set_wait_time(self, wait):
+        if self.can_change_wait:
+            self.previous_wait_time = self.wait_time
+            self.wait_time = wait
+
+    def set_scroll_distance(self, distance):
+        if self.can_change_scroll:
+            self.previous_scroll_distance = self.scroll_distance
+            self.scroll_distance = distance
+
+    def set_should_wait(self, should):
+        if self.can_change_wait:
+            self.previous_should_wait = self.should_wait
+            self.should_wait = should
+
+    def set_should_scroll(self, should):
+        if self.can_change_scroll:
+            self.previous_should_scroll = self.should_scroll
+            self.should_scroll = should
+
+    def wait(self):
         """
         Wait a certain amount of time.
-        
-        Params:
-            - t(int): The amount of time in seconds to wait for.
         """
-        time.sleep(t)
+        if self.should_wait:
+            time.sleep(self.wait_time)
+            self.reset_wait()
+
+    def reset_wait(self):
+        self.should_wait = self.previous_should_wait
+        self.wait_time = self.previous_wait_time
+
+    def reset_scroll(self):
+        self.should_scroll = self.previous_should_scroll
+        self.scroll_distance = self.previous_scroll_distance
+
+    def reset_all(self):
+        self.reset_wait()
+        self.reset_scroll()
+
+    def quit(self):
+        """
+        quit the browser.
+        """
+        self.driver.quit()

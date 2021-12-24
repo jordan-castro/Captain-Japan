@@ -42,8 +42,8 @@ class DB:
         """
         Close any cursors and connections.
         """
-        self.conn.close()
         self.cursor.close()
+        self.conn.close()
 
     def set_schema(self):
         """
