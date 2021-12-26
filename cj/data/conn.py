@@ -6,6 +6,7 @@ import sqlite3
 TABLE_NOVELS = "novels"
 TABLE_MANGAS = "mangas"
 TABLE_ANIME = "anime"
+TABLE_BOOKS = "books"
 
 # Column names
 COL_NOVEL_ID = "novel_id"
@@ -17,6 +18,11 @@ COL_MANGA_ID = "manga_id"
 COL_MANGA_TITLE = "title"
 COL_MANGA_LOCATION = "location"
 COL_MANGA_COVER = "cover"
+
+COL_BOOK_ID = "book_id"
+COL_BOOK_TITLE = "title"
+COL_BOOK_AUTHOR = "author"
+COL_BOOK_LOCATION = "location"
 
 
 class DB:
@@ -63,6 +69,14 @@ class DB:
                 {COL_MANGA_TITLE} TEXT,
                 {COL_MANGA_LOCATION} TEXT,
                 {COL_MANGA_COVER} TEXT
+            )
+        """)
+        self.cursor.execute(f"""
+            CREATE TABLE IF NOT EXISTS {TABLE_BOOKS} (
+                {COL_BOOK_ID} INTEGER PRIMARY KEY,
+                {COL_BOOK_TITLE} TEXT,
+                {COL_BOOK_AUTHOR} TEXT,
+                {COL_BOOK_LOCATION} TEXT
             )
         """)
 
