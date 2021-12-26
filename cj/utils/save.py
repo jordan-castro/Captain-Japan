@@ -1,6 +1,7 @@
 # Handles the saving of the files.
 from cj.objects.chapter import Chapter
 from cj.objects.source import Source
+from cj.utils.naming import remove_chars
 from cj.utils.path import create_dir, create_source_path
 from cj.data.cj_db import CJDB
 
@@ -48,6 +49,10 @@ class Save:
         # Create the chapter dog
         create_dir(chapter_path)
 
-        # TODO: maybe we'll change the type of file to something else, like .html
-        with codecs.open(f"{chapter_path}/{self.chapter.number}.txt", "w", "utf8") as file:
+        # Writing the TXT
+        with codecs.open(f"{chapter_path}/{remove_chars(self.chapter.title)}.txt", "w", "utf8") as file:
             file.write(self.chapter.body)
+        
+        # Writing the HTML
+        with codecs.open(f"{chapter_path}/{remove_chars(self.chapter.title)}.html", "w", "utf8") as file:
+            file.write(self.chapter.html)

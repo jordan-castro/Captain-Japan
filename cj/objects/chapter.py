@@ -11,12 +11,14 @@ class Chapter(object):
     number: int = None
     title: str = None
     body: str = None
+    # The HTML document for the chapter
+    document = None
 
     def __init__(self, url: str=None, number: int=None, title: str=None):
         self.url = url
         self.number = number
         self.title = title
-    
+
     def __str__(self):
         return f"Chapter {self.number}: {self.title} ({self.url})"
 

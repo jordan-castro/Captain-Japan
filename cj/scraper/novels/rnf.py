@@ -112,6 +112,7 @@ class RNF(NovelBase):
         )
         # Get the body 
         body = chapter_content.find_all(chapter_container["text"]["tag"])
+        chapter.document = body
         chapter.body = ""
         # Get the text
         for text in body:
