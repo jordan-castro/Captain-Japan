@@ -10,3 +10,5 @@ Alos Captain Japan comes with a beatiful front end app rather than most command 
 - Add function to strip chapter titles of invalid characters.
 - Add function to find chapter numbers in chapter titles.
 - Add WuxiaWorld support.
+- Add support for converting to EPUB, PDF, MOBI, etc...
+- Add Send to kindle through email support.
