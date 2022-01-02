@@ -1,6 +1,7 @@
 # Handles the saving of the files.
 from cj.objects.chapter import Chapter
 from cj.objects.source import Source
+from cj.utils.enums import CjType
 from cj.utils.naming import remove_chars
 from cj.utils.path import create_dir, create_source_path
 from cj.data.cj_db import CJDB
@@ -33,10 +34,19 @@ class Save:
             location = create_source_path(self.source, self.source.directory())
             self.source.location = location
             # Save the source
-            self.db.add_novel(self.source) # TODO: this should be a method of the Save class, to handle manga and anime.
+            self._save_to_db()
 
         # Ok the location is set, now save the chapter
         self._save_chapter()
+
+    def _save_to_db(self):
+        """
+        Save to the database the current source of the Save class.
+        """
+        if self.source.cj_type is CjType.NOVEL:
+            self.db.add_novel(self.source)
+        # elif self.source.cj_type is CjType.MANGA:
+        #     self.db.add_manga(self.source)
 
     def _save_chapter(self):
         """

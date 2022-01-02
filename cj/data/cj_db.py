@@ -1,5 +1,4 @@
 # The actual database class that we use.
-import sqlite3
 from cj.data.conn import COL_MANGA_TITLE, COL_NOVEL_COVER, COL_NOVEL_ID, COL_NOVEL_LOCATION, COL_NOVEL_TITLE, DB, TABLE_MANGAS, TABLE_NOVELS
 from cj.objects.novel import Novel
 from cj.utils.enums import CjType
@@ -54,17 +53,20 @@ class CJDB(DB):
         # The Query
         query = f"""
         INSERT INTO {TABLE_NOVELS} 
-        ({COL_NOVEL_ID}, {COL_NOVEL_TITLE}, {COL_NOVEL_LOCATION}, {COL_NOVEL_COVER}) 
-        VALUES (:{COL_NOVEL_ID}, :{COL_NOVEL_TITLE}, :{COL_NOVEL_LOCATION}, :{COL_NOVEL_COVER})
+        ({COL_NOVEL_TITLE}, {COL_NOVEL_LOCATION}, {COL_NOVEL_COVER}) 
+        VALUES (:{COL_NOVEL_TITLE}, :{COL_NOVEL_LOCATION}, :{COL_NOVEL_COVER})
         """
         values = novel.to_json()
+
+        print(query)
+        print(values)
 
         try:
             # Execute the query
             self.execute(query, values)
             return True
         except Exception as e:
-            # print("Exception occured while adding novel: {} Exception was:".format(novel), e)
+            print("Exception occured while adding novel: {} Exception was:".format(novel), e)
             return False
 
     def update_novel(self, novel: Novel) -> bool:

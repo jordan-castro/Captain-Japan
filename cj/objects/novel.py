@@ -1,7 +1,6 @@
 from cj.data.conn import COL_NOVEL_ID, COL_NOVEL_TITLE, COL_NOVEL_LOCATION, COL_NOVEL_COVER
 from cj.objects.source import Source
 from cj.utils.enums import CjType
-from cj.utils.json import to_json
 
 
 class Novel(Source):
@@ -31,13 +30,15 @@ class Novel(Source):
             - dict
         """
         data = {
-            COL_NOVEL_ID: self._id,
             COL_NOVEL_TITLE: self.title,
             COL_NOVEL_LOCATION: self.location,
             COL_NOVEL_COVER: self.cover
         }
 
-        return to_json(data)
+        if self._id is not None:
+            data[COL_NOVEL_ID] = self._id
+
+        return data
 
 
 if __name__ == "__main__":
