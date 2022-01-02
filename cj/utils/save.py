@@ -7,6 +7,7 @@ from cj.data.cj_db import CJDB
 
 import codecs
 import os
+import shutil
 
 
 class Save:
@@ -45,7 +46,10 @@ class Save:
         chapter_path = self.source.chapter_path(self.chapter.number)
         if os.path.exists(chapter_path):
             # Remove that fucker
-            os.remove(chapter_path, recursive=True)
+            try:
+                os.rmdir(chapter_path)
+            except OSError:
+                shutil.rmtree(chapter_path)
         # Create the chapter dog
         create_dir(chapter_path)
 
@@ -55,4 +59,4 @@ class Save:
         
         # Writing the HTML
         with codecs.open(f"{chapter_path}/{remove_chars(self.chapter.title)}.html", "w", "utf8") as file:
-            file.write(self.chapter.html)
+            file.write(self.chapter.document)
