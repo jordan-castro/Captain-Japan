@@ -11,10 +11,7 @@ class Novel(Source):
     cover: str = None
 
     def __init__(self, id: int, title: str, location: str, cover: str) -> None:
-        self._id = id
-        self.title = title
-        self.location = location
-        self.cover = cover
+        super().__init__(id, title, location, cover)
         self.cj_type = CjType.NOVEL
 
     @staticmethod
