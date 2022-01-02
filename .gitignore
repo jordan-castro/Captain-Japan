@@ -136,3 +136,4 @@ scraped
 *.whl
 /captainjapan
 *.db
+/cj/data/settings.json
