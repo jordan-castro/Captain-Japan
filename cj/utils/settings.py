@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 
-SETTINGS_FILE = "cj/data/app.json"
+SETTINGS_FILE = "cj/data/settings.json"
 
 
 def read_settings(key: str) -> Any:
