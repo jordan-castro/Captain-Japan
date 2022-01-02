@@ -12,6 +12,7 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 
 from cj.objects.book import Book
+from cj.utils.enums import BookType
 
 
 class NoEmailException(Exception):
@@ -24,6 +25,10 @@ class KindleConn:
         self.email_from = email_from
         self.password = password_from
         self.book = book
+
+        # Raise exception if book type is not PDF or MOBI
+        if self.book.book_type not in [BookType.PDF, BookType.MOBI]:
+            raise ValueError("Only PDF and MOBI books are supported.")
 
     def send(self):
         """
