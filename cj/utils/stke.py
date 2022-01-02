@@ -4,8 +4,6 @@ import smtplib
 
 from os.path import basename
 
-from email import encoders
-from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
@@ -75,9 +73,9 @@ class KindleConn:
         session.quit()
 
 
-if __name__ == "__main__":
-    # Test sending a book
-    loc = r"C:\Users\jorda\Downloads\Overlord - Vol. 3 - The Bloody Valkyrie by Maruyama Kugane [Maruyama Kugane] (z-lib.org).pdf"
-    book = Book(title="The Little Book of Stoicism", location=loc)
-    kindle_con = KindleConn("jordanmcastro@outlook.com", "jordan@grupojvm.com", "Superboy$", book)
-    kindle_con.send()
+# if __name__ == "__main__":
+#     # Test sending a book
+#     loc = r"C:\Users\jorda\Downloads\Overlord - Vol. 3 - The Bloody Valkyrie by Maruyama Kugane [Maruyama Kugane] (z-lib.org).pdf"
+#     book = Book(title="The Little Book of Stoicism", location=loc)
+#     kindle_con = KindleConn("emailtosendto@email.com", "username@email.com", "password", book)
+#     kindle_con.send()
