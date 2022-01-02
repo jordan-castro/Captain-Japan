@@ -12,7 +12,7 @@ class Chapter(object):
     title: str = None
     body: str = None
     # The HTML document for the chapter
-    document = None
+    document: str = None
 
     def __init__(self, url: str=None, number: int=None, title: str=None):
         self.url = url
