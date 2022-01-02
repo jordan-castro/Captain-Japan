@@ -1,6 +1,5 @@
 # A WEB SCRAPER for ReadNovelFull.com
 
-from typing import KeysView
 from cj.scraper.novel_base import NovelBase
 from selenium.webdriver.common.by import By
 
@@ -112,11 +111,12 @@ class RNF(NovelBase):
         )
         # Get the body 
         body = chapter_content.find_all(chapter_container["text"]["tag"])
-        chapter.document = body
         chapter.body = ""
+        chapter.document = ""
         # Get the text
         for text in body:
             chapter.body += text.text.strip() + "\n\n"
+            chapter.document += text.prettify(formatter="html")
         # Return the text
         return chapter
 
