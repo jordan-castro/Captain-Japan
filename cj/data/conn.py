@@ -116,6 +116,8 @@ class DB:
         Query the database.
         """
         self.connection()
-        self.execute(query, values)
-        return self.cursor.fetchall()
+        self.cursor.execute(query, values)
+        values = self.cursor.fetchall()
+        self.close()
+        return values
     
