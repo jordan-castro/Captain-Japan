@@ -40,6 +40,9 @@ class Scraper:
         - javascript(bool): Is the website being loaded with JavaScript?
         - start_url(str): The url to start on, defaults to https://www.google.com.
     """
+    # The limit of scrapes to be done at a time. (if js is enabled then it will be the amount of pages before waiting)
+    limit: int = 5
+
     def __init__(self, javascript:bool, headless:bool, start_url:str="https://www.google.com") -> None:
         self.js = javascript
         self.current_url = start_url
