@@ -31,7 +31,7 @@ class BookType(Enum):
         elif self == BookType.MOBI:
             return "mobi"
         elif self == BookType.HTML:
-            return "html"
+            return "source"
         else:
             raise ValueError("Invalid BookType")
     
