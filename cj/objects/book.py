@@ -6,6 +6,7 @@ class Book:
     title: str = None
     author: str = None
     location: str = None
+    _type: BookType = None
     
     def __init__(self, title=None, author=None, location=None) -> None:
         self.title = title
@@ -26,6 +27,9 @@ class Book:
         """
         Get the book type from a location string.
         """
+        # Check if we already have a type or what not.
+        if self._type is not None:
+            return self._type
         # Raise exception if location is None
         if self.location is None:
             raise ValueError("No Book location provided.")
@@ -34,6 +38,7 @@ class Book:
         extension = self.location.split(".")[-1]
         return BookType.from_str(extension)
 
+    @property
     def _chapter_numbers(self):
         # Requires that the location is set
         if self.location is None:
@@ -61,11 +66,11 @@ class Book:
         """
         Return the starting chapter of the book.
         """
-        return min(self._chapter_numbers())
+        return min(self._chapter_numbers)
 
     @property
     def ending_chapter(self) -> int:
         """
         Return the ending chapter of the book.
         """
-        return max(self._chapter_numbers())
+        return max(self._chapter_numbers)
