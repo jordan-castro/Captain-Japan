@@ -17,6 +17,7 @@ class NoEmailException(Exception):
     def __init__(self, message) -> None:
         super().__init__(message)
 
+
 class KindleConn:
     def __init__(self, email_to: str, email_from: str, password_from: str, book: Book) -> None:
         self.email_to = email_to
