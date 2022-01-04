@@ -1,6 +1,8 @@
 from pathlib import Path
 from cj.utils.settings import read_settings
-import os
+import shutil
+import os 
+import glob
 
 
 def create_dir(path):
@@ -33,8 +35,31 @@ def delete_directory(path):
     if not p.exists():
         return
 
-    # Delete the directory and it's contents
-    os.rmdir(path, recursive=True)
+    shutil.rmtree(path)
+
+
+def replace_directory(path):
+    """
+    Replace a directory. Basically recreate it.
+
+    Params:
+        - path(str): The path to the directory to replace.
+    """
+    # Get the path
+    p = Path(path)
+
+    # Check if the directory exists
+    if p.exists() is False:
+        # Just create it then
+        create_dir(path)
+        # Close function
+        return
+
+    # Delete the directory
+    delete_directory(path)
+
+    # Create the directory
+    create_dir(path)
 
 
 def create_source_path(source, dir):
@@ -50,3 +75,37 @@ def create_source_path(source, dir):
     # Create the novel directory
     create_dir(source)
     return source
+
+
+def change_path_if_already_exists(path) -> str :
+    """
+    Change the path if the file already exists. 
+
+    Params:
+        - <path: str> The path to the file or folder.
+
+    Returns:
+        - <path: str> The path to the file or folder.
+    """
+    p = Path(path)
+    # Check if it even exists first of all
+    if p.exists() is False:
+        # Return the original path
+        return path
+
+    # Ok it does exist, so let's find out how many times it exists
+
+    return new_path
+
+
+def get_slash_type(path)-> str :
+    """
+    Get the slash type of a path.
+
+    Returns:
+        - string
+    """
+    if '\\' in path:
+        return '\\'
+    else:
+        return '/'
