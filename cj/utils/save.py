@@ -12,6 +12,9 @@ import shutil
 
 
 class Save:
+    """
+    Handles the writing to files and Database when adding Novels, Mangas, or Anime.
+    """
     def __init__(self, chapter: Chapter, source: Source) -> None:
         self.chapter = chapter
         self.source = source
