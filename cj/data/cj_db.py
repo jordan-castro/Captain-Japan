@@ -58,9 +58,6 @@ class CJDB(DB):
         """
         values = novel.to_json()
 
-        print(query)
-        print(values)
-
         try:
             # Execute the query
             self.execute(query, values)
@@ -111,7 +108,8 @@ class CJDB(DB):
         # The Query
         query = f"""
         SELECT * FROM {table}
-        WHERE {col} LIKE ?
+        WHERE {col} LIKE "%{title}%"
         """
         # Execute and return the query
-        return self.query(query, (title,))
+        values = self.query(query, ())
+        return values
