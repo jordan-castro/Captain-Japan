@@ -94,8 +94,24 @@ def change_path_if_already_exists(path) -> str :
         return path
 
     # Ok it does exist, so let's find out how many times it exists
+    name = path.split(get_slash_type(path))[-1]
+    extension = name.split('.')[-1]
+    # Get the path without the name
+    path = path.replace(name, '')
+    # Get the number of files with the same name
+    files = glob.glob(path + '*')
+    count = 0
+    # Remove the extension
+    name = name.replace(f'.{extension}', '')
 
-    return new_path
+    for file in files:
+        if name.lower() in file.lower():
+            count += 1
+    
+    # Add the number to the name
+    name = name + f'_{count}.{extension}'
+
+    return path + name
 
 
 def get_slash_type(path)-> str :
