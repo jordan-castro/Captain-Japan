@@ -92,12 +92,6 @@ class DB:
         self.cursor.execute(query, values)
         self.commit()
 
-    def insert(self, table: str, values: tuple) -> None:
-        """
-        Insert values into a table.
-        """
-        self.execute(f"INSERT INTO {table} VALUES {values}")
-
     def update(self, table: str, values: tuple, where: str) -> None:
         """
         Update values in a table.
