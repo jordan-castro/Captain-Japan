@@ -9,9 +9,9 @@ Also Captain Japan comes with a beatiful front end app rather than most command 
 # TODO
 - Add function to find chapter numbers in chapter titles.
 - Add WuxiaWorld support.
-- Create Epubs. (All other book formats should be created using Calibre)
 - Add Manga support.
 - Add Anime support.
 - Add a way to add new sites without coding.
 - Fix website overlodaing. (Currently CaptainJapan will look like a DDos rather than a real person)
 - Handle the scraping in one class.
+- UTF-8 PDF support.
