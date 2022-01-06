@@ -137,3 +137,5 @@ scraped
 /captainjapan
 *.db
 /cj/data/settings.json
+*go.sum
+*.exe
