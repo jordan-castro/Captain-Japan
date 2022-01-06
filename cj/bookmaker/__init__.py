@@ -29,7 +29,7 @@ class BookMaker:
         raise NotImplementedError
     
     @abstractmethod
-    def setup(self):
+    def setup(self, language, cover=None):
         """
         Setup the class objects for the instance of book maker.
         """
@@ -44,7 +44,7 @@ class BookMaker:
         # Now find where does this book belong from settings
         where_it_belongs = read_settings("path")[str(book_type)] + "/"
         # Set the path.
-        self.path = change_path_if_already_exists(where_it_belongs + f"{self.book.title}.epub")
+        self.path = change_path_if_already_exists(where_it_belongs + f"{self.book.title}.{book_type.get_file_extension()}")
     
     def save(self):
         """
@@ -77,13 +77,20 @@ def get_chapters_for_maker(chapters: list[int], **kwargs):
     else:
         novel_location = kwargs['location'] + '/'
 
+    # Get the file type that we want to use.
+    # As a rule, we want to use 'html' for epub and 'txt' for pdf.
+    if "type" in kwargs.keys():
+        file_type = kwargs['type']
+    else:
+        file_type = "html"
+
     chapter_locations = []
 
     for chapter in chapters:
         # Add to the folder
         chapter_location = novel_location + f"{chapter}/"
         # Glob the chapter location
-        chapter_html = glob.glob(chapter_location + "*.html")
+        chapter_html = glob.glob(chapter_location + f"*.{file_type}")
         chapter_locations.append(chapter_html[0])
 
     return chapter_locations
