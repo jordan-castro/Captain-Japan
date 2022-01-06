@@ -1,6 +1,8 @@
 from abc import abstractmethod
+from cj.data.cj_db import CJDB
+from cj.data.conn import COL_BOOK_AUTHOR, COL_BOOK_LOCATION, COL_BOOK_TITLE, TABLE_BOOKS
 from cj.objects.book import Book
-from cj.utils.path import change_path_if_already_exists, get_slash_type
+from cj.utils.path import change_path_if_already_exists
 from cj.utils.settings import read_settings
 import glob
 
@@ -44,6 +46,21 @@ class BookMaker:
         # Set the path.
         self.path = change_path_if_already_exists(where_it_belongs + f"{self.book.title}.epub")
     
+    def save(self):
+        """
+        Save the book to the local database for quick access later.
+        """
+        # Check if the location of the book is not set.
+        if self.book.location is None:
+            raise ValueError("The location of the book is not set.")
+        # Open connection to database and add the book.
+        cj_db = CJDB()
+        cj_db.execute(
+            f"INSERT INTO {TABLE_BOOKS} ({COL_BOOK_TITLE}, {COL_BOOK_AUTHOR}, {COL_BOOK_LOCATION}) VALUES (?, ?, ?)",
+            (self.book.title, self.book.author, self.book.location)
+        )
+        # That is it
+
 
 def get_chapters_for_maker(chapters: list[int], **kwargs):
     """

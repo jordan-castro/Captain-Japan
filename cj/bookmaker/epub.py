@@ -1,5 +1,6 @@
 from ebooklib import epub
 from cj.bookmaker import BookMaker, Book
+from cj.bookmaker.add_title import add_title
 
 
 class EpubMaker(BookMaker):
@@ -44,9 +45,11 @@ class EpubMaker(BookMaker):
                 file_name=xml_path
             )
 
+            # Add the title to the chapter
+            content = add_title(chapter)
+
             # Add content to chapter
-            with open(chapter, "r", encoding="utf8") as file:
-                epub_chapter.set_content(file.read())
+            epub_chapter.set_content(content)
 
             # Add chapter to epub
             self.epub_book.add_item(epub_chapter)
@@ -83,3 +86,6 @@ class EpubMaker(BookMaker):
 
         # Now write the epub
         epub.write_epub(self.path, self.epub_book)
+
+        # Save the book to the database
+        self.save()
