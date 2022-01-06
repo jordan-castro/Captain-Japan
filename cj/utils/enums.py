@@ -35,6 +35,24 @@ class BookType(Enum):
         else:
             raise ValueError("Invalid BookType")
     
+    def get_file_extension(self)-> str :
+        """
+        Return a file extension for the book type.
+
+        Returns:
+            - str
+        """
+        if self == BookType.EPUB:
+            return "epub"
+        elif self == BookType.PDF:
+            return "pdf"
+        elif self == BookType.MOBI:
+            return "mobi"
+        elif self == BookType.HTML:
+            return "html"
+        else:
+            raise ValueError("Invalid BookType")
+
     @staticmethod
     def from_str(string: str):
         if string == "epub":
