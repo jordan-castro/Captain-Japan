@@ -11,11 +11,7 @@ from email.utils import formatdate
 
 from cj.objects.book import Book
 from cj.utils.enums import BookType
-
-
-class NoEmailException(Exception):
-    def __init__(self, message) -> None:
-        super().__init__(message)
+from cj.utils.exceptions import NoEmailException
 
 
 class KindleConn:

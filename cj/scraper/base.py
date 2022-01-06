@@ -6,23 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
-
-class NoJsException(Exception):
-    # This is an exception for when the scraper cannot find the javascript element.
-    def __init__(self):
-        super().__init__("JavaScript is not enabled.")
-
-
-class NoSoupException(Exception):
-    # This is an exception for when the scraper cannot find the soup element.
-    def __init__(self):
-        super().__init__("Cannot create a BeautifulSoup object.")
-
-
-class NoScrollException(Exception):
-    # This is an exception for when the Scrapper class has should_scroll set to False
-    def __init__(self):
-        super().__init__("self.should_scroll is False")
+from cj.utils.exceptions import NoJsException, NoScrollException
 
 
 class Scraper:
