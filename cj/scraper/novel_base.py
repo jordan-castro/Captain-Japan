@@ -1,8 +1,9 @@
 from selenium.webdriver.common.by import By
-from cj.scraper.base import NoSoupException, Scraper
+from cj.scraper.base import Scraper
 from abc import abstractmethod
 
 from cj.objects.chapter import Chapter
+from cj.utils.exceptions import NoSoupException
 
 
 class NovelBase(Scraper):
