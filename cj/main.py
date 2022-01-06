@@ -1,4 +1,5 @@
 from cj.bookmaker import get_chapters_for_maker
+from cj.bookmaker.pdf import PdfMaker
 from cj.data.cj_db import CJDB
 from cj.objects.book import Book
 from cj.objects.novel import Novel
@@ -67,8 +68,9 @@ def create_book_from_novel(title, chapters, book_type):
     # Get the location
     location = novel.location
 
+    _type = "txt" if book_type == BookType.PDF else "html"
     # Now let's get the chapters
-    book_chapters = get_chapters_for_maker(chapters, location=location)
+    book_chapters = get_chapters_for_maker(chapters, location=location, type=_type)
     
     book = Book(title)
     book._type = book_type
@@ -76,6 +78,8 @@ def create_book_from_novel(title, chapters, book_type):
     # Ard lets make this book
     if book._type == BookType.EPUB:
         maker = EpubMaker(book_chapters, book)
+    elif book._type == BookType.PDF:
+        maker = PdfMaker(book_chapters, book)
     else:
         raise NotImplementedError
 
@@ -90,7 +94,6 @@ def create_book_from_novel(title, chapters, book_type):
 
 
 if __name__ == "__main__":
-    scrape_novel("The beginning after the end", [])
-    # create_book_from_novel("The beginning after the end", [
-    #     0,1,2,3,4,5,6,7,8,9,10,11,12,13
-    # ], BookType.EPUB)
+    # scrape_novel("The beginning after the end", [])
+    chapters = [c for c in range(0, 39)]
+    create_book_from_novel("The beginning after the end", chapters, BookType.PDF)
