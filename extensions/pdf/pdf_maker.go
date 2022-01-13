@@ -3,56 +3,100 @@ package main
 import (
 	"os"
 	"strings"
+	"encoding/json"
 
 	"github.com/jung-kurt/gofpdf"
 )
 
 func main() {
+	// Get the path to the json file
+	jsonPath := os.Args[1]
 	// Get the files (pages) for the PDF
-	filesToAdd := ReadInput()
-	outputFile := filesToAdd[len(filesToAdd)-1]
-	// Pop off the last item as it is the output file
-	filesToAdd = filesToAdd[:len(filesToAdd)-1]
+	pdfMaker := ReadJson(jsonPath)
 
-	// Create a new pdf "object"
+	// Create the pdf
 	pdf := gofpdf.New("P", "mm", "A4", "")
-	// Set the font
-	pdf.SetFont("Arial", "", 12)
+	pdf.SetAuthor("Captain Japan", true)
 
-	// Loop through the files
-	for i := 0; i < len(filesToAdd); i++ {
-		// Add a new page and set a bookmark at the current page
-		pdf.AddPage()
-		// Get the file name
-		title := GetFileName(filesToAdd[i])
-		pdf.Bookmark(title, 0, 0)
-		
-		_, lineHt := pdf.GetFontSize()
-		// Add the file contents to the pdf
-		contents := ReadFile(filesToAdd[i])
-		pdf.Write(lineHt + 2, contents)
+	output := pdfMaker["output"].(string)
+
+	if pdfMaker["isManga"].(bool) == true {
+		// Make a manga pdf
+		chapters := pdfMaker["chapters"].(map[int]interface{})
+		// Loop through the chapters
+		for i := 0; i < len(chapters); i++ {
+			// Get the chapter
+			chapter := chapters[i].(map[string]interface{})
+			title := chapter["title"].(string)
+			pages := chapter["pages"].([]string)
+			// Loop through the pages
+			for j := 0; j < len(pages); j++ {
+				if j == 1 {
+					// Bookmark the previous chapter AKA (firs page of chapter)
+					pdf.Bookmark(title, 0, 0)
+					continue
+				}
+				// Add a page
+				AddPage(pdf, true, pages[j])
+			}
+		}
+	} else {
+		chapters := pdfMaker["chapters"].([]string)
+		// Loop through the chapters
+		for i := 0; i < len(chapters); i++ {
+			// Add a page
+			AddPage(pdf, false, chapters[i])
+		}
 	}
-	
-	// pdf.AddPage()
-	// pdf.SetFont("Arial", "B", 16)
-	// pdf.Cell(40, 10, "Hello Captain Japan")
 
-	// Alright now let's write the pdf to a file
-	err := pdf.OutputFileAndClose(outputFile)
+	err := pdf.OutputFileAndClose(output)
 
 	if err != nil {
 		panic(err)
 	}
 }
 
+// Add a page to the pdf
+func AddPage(pdf *gofpdf.Fpdf, isManga bool, fileToAdd string) {
+	// Add page
+	pdf.AddPage()
+	if !isManga {
+		// Get the file name
+		title := GetFileName(fileToAdd)
+		// Add bookmark
+		pdf.Bookmark(title, 0, 0)
+
+		// Add the title to the pdf
+		pdf.SetFont("Arial", "B", 16)
+		pdf.Cell(40, 10, title)
+
+		_, lineHt := pdf.GetFontSize()
+		// Add the file contents to the pdf
+		contents := ReadFile(fileToAdd, false)
+		pdf.Write(lineHt + 2, contents)
+	} else {
+		// name of image
+		imageName := GetFileName(fileToAdd)
+		// Register a image
+		pdf.RegisterImageOptionsReader(imageName, gofpdf.ImageOptions{ImageType: "PNG"}, strings.NewReader(ReadFile(fileToAdd, true)))
+		// Add a Image to the pdf
+		pdf.ImageOptions(fileToAdd, 0, 0, -1, -1, false, gofpdf.ImageOptions{ImageType: "PNG"}, 0, imageName)
+	}
+}
+
 // Read the file and return it's contents. Also add a Title to the contents being returned.
 // The title comes from the file name
-func ReadFile(path string) string {
+func ReadFile(path string, isManga bool) string {
 	// Open the file and get it's contents
 	contents, err := os.ReadFile(path)
 	// Check for errors
 	if err != nil {
 		panic(err)
+	}
+
+	// If isManga is true then just return the contents
+	if isManga {
+		return string(contents)
 	}
 
 	// Ok let's add the title to the contents
@@ -84,19 +128,22 @@ func GetFileName(path string) string {
 	return fileName
 }
 
-// Read the input passed in from the cmd
-func ReadInput() []string {
-	// Get the input
-	argsWithoutProg := os.Args[1:]
+// Read the JSON file.
+func ReadJson(path string) map[string]interface{} {
+	var jsonData interface{}
 
-	// Combine the input into one strings
-	var input string
-	for i := 0; i < len(argsWithoutProg); i++ {
-		input += argsWithoutProg[i]
+	// Read the data from the file
+	contents, err := os.ReadFile(path)
+
+	if err != nil {
+		panic(err)
 	}
 
-	// Split the input by ";"
-	inputSplit := strings.Split(input, ";")
+	// Unmarshal the data
+	err = json.Unmarshal([]byte(contents), &jsonData)
+	if err != nil {
+		panic(err)
+	}
 
-	return inputSplit
+	return jsonData.(map[string]interface{})
 }
