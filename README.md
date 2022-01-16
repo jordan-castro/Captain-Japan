@@ -15,3 +15,4 @@ Also Captain Japan comes with a beatiful front end app rather than most command 
 - Fix website overlodaing. (Currently CaptainJapan will look like a DDos rather than a real person)
 - Handle the scraping in one class.
 - UTF-8 PDF support.
+- Incorporate the new PDF maker into the app.
