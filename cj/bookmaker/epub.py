@@ -1,12 +1,16 @@
 from ebooklib import epub
 from cj.bookmaker import BookMaker, Book
 from cj.bookmaker.add_title import add_title
+from cj.utils.exceptions import IncorrectFormatException
+from cj.utils.naming import get_file_name
 
 
 class EpubMaker(BookMaker):
     epub_book: epub.EpubBook = None
 
     def __init__(self, chapters: list[str], book: Book, description: str = None) -> None:
+        if book.is_manga:
+            raise IncorrectFormatException("Epub does not support manga at this time.")
         super().__init__(chapters, book, description=description)
 
     def setup(self, language, cover=None):
@@ -39,9 +43,8 @@ class EpubMaker(BookMaker):
             # The xml path
             xml_path = f"{self.chapters.index(chapter)}.xhtml"
             # The title of the chapter
-            title = "Chapter " + str(self.chapters.index(chapter) + 1)
             epub_chapter = epub.EpubHtml(
-                title=title,
+                title=get_file_name(chapter),
                 file_name=xml_path
             )
 
