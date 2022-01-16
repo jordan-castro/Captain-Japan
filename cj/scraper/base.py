@@ -114,8 +114,6 @@ class Scraper:
                 if self.should_scroll:
                     # Scroll the page
                     self.scroll_page()
-                # Scroll the page to the bottom.
-                # self.scroll_page()
                 response = self.driver.page_source
             else:
                 response = requests.get(url).text
