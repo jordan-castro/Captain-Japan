@@ -1,5 +1,9 @@
+from bcrypt import os
 from cj.bookmaker import BookMaker, Book
 import subprocess
+import json
+
+from cj.utils.naming import get_file_name
 
 
 # The path to the pdf_maker executable
@@ -11,17 +15,45 @@ class PdfMaker(BookMaker):
         super().__init__(chapters, book, description=description)
 
     def setup(self, language, cover=None):
-        pass        
+        # ! PDF Maker does not support language or cover so we just pass this method.
+        pass
+
+    def format_chapters(self) -> list:
+        """
+        Format the chapters to either match a Manga or a Novel.
+        """
+        if self.book.is_manga:
+            chapters = []
+            for chapter in self.chapters:
+                chapters.append({
+                    "title": get_file_name(chapter),
+                    "pages": [
+
+                    ]
+                })
+            return chapters
+        else:
+            return self.chapters
 
     def make(self):
-        # Convert the list of strings into a single string, joined by ';'
-        chapters = ";".join(self.chapters)
-        chapters += f";{self.path}"
+        # TODO The PDF_Maker executable has changed logic, to accept a JSON file as input.
+        # Write to a Json file with the pdf data
+        pdf_json = {
+            "title": self.book.title,
+            "author": "Captain Japan", # TODO: Add author
+            "isManga": self.book.is_manga,
+            "output": self.path,
+            "chapters": self.format_chapters(),
+        }
+        with open("pdf.json", "w") as f:
+            f.write(json.dumps(pdf_json))
 
-        # Call the pdf_maker executable
-        subprocess.call([PDF_MAKER_LOCATION, chapters])
+        # Run the PDF_Maker executable
+        subprocess.run([PDF_MAKER_LOCATION, "pdf.json"])
+        # delete the json file
+        os.remove("pdf.json")
         # Save to the database.
-        # self.save()
+        self.save()
 
 if __name__ == "__main__":
     pass
