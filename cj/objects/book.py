@@ -7,11 +7,13 @@ class Book:
     author: str = None
     location: str = None
     _type: BookType = None
+    is_manga: bool = None
     
-    def __init__(self, title=None, author=None, location=None) -> None:
+    def __init__(self, title=None, author=None, location=None, is_manga=None) -> None:
         self.title = title
         self.author = author
         self.location = location
+        self.is_manga = is_manga
 
     def __str__(self) -> str:
         return f"{self.title} by {self.author}"
