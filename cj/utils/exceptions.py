@@ -19,3 +19,8 @@ class NoScrollException(Exception):
 class NoEmailException(Exception):
     def __init__(self, message) -> None:
         super().__init__(message)
+
+
+class IncorrectFormatException(Exception):
+    def __init__(self, message) -> None:
+        super().__init__(message)
