@@ -28,3 +28,17 @@ def get_file_name(file_path: str, extension: bool = False) -> str:
         return file_name
     else:
         return file_name.split('.')[0]
+
+
+def get_directory_name(directory_path: str) -> str:
+    """
+    Get the name of a directory based on it's path.
+    Also checks if path is a file path.
+    """
+    slash = get_slash_type(directory_path)
+
+    possible_directory_name = directory_path.split(slash)[-1]
+    if '.' in possible_directory_name:
+        return directory_path.split(slash)[-2]
+    else:
+        return possible_directory_name
