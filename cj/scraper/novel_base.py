@@ -106,3 +106,18 @@ class NovelBase(Scraper):
 
         # Otherwise, return the soup object.
         return soup_object
+
+    def get_chapter_content(self, chapter_container, soup):
+        """
+        Based on a chapter_container with the correct dict values, we will scrape the page.
+        """
+        chapter_content = soup.find(
+            chapter_container["tag"],
+            {
+                chapter_container["selector"]: chapter_container["value"]
+            }
+        )
+
+        body = chapter_content.find_all(chapter_container["text"]["tag"])
+
+        return body
