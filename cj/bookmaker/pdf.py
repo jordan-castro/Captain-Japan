@@ -3,7 +3,8 @@ from cj.bookmaker import BookMaker, Book
 import subprocess
 import json
 
-from cj.utils.naming import get_file_name
+from cj.utils.naming import get_directory_name
+from cj.utils.path import get_files_in_directory
 
 
 # The path to the pdf_maker executable
@@ -26,10 +27,8 @@ class PdfMaker(BookMaker):
             chapters = []
             for chapter in self.chapters:
                 chapters.append({
-                    "title": get_file_name(chapter),
-                    "pages": [
-
-                    ]
+                    "title": get_directory_name(chapter),
+                    "pages": get_files_in_directory(chapter)    
                 })
             return chapters
         else:
@@ -41,7 +40,7 @@ class PdfMaker(BookMaker):
         pdf_json = {
             "title": self.book.title,
             "author": "Captain Japan", # TODO: Add author
-            "isManga": self.book.is_manga,
+            "isManga": self.book.is_manga or False,
             "output": self.path,
             "chapters": self.format_chapters(),
         }
