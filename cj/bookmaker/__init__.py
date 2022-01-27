@@ -51,8 +51,10 @@ class BookMaker:
         Save the book to the local database for quick access later.
         """
         # Check if the location of the book is not set.
-        if self.book.location is None:
+        if self.book.location is None and self.path is None:
             raise ValueError("The location of the book is not set.")
+        elif self.book.location is None and self.path is not None:
+            self.book.location = self.path
         # Open connection to database and add the book.
         cj_db = CJDB()
         cj_db.execute(
