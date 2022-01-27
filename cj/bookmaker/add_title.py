@@ -1,4 +1,4 @@
-import os
+from cj.utils.naming import get_file_name
 
 
 def add_title(file, title=None):
@@ -11,7 +11,7 @@ def add_title(file, title=None):
     """
     if title is None:
         # Use the file name
-        title = os.path.basename(file)
+        title = get_file_name(file)
     
     dash_color = "#9fa8da"
     html = f"""
