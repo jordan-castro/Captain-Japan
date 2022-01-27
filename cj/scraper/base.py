@@ -215,4 +215,5 @@ class Scraper:
         """
         quit the browser.
         """
-        self.driver.quit()
+        if self.js:
+            self.driver.quit()
