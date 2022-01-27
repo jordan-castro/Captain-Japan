@@ -102,15 +102,7 @@ class RNF(NovelBase):
         if soup is None:
             return None
 
-        # Get the chapter content
-        chapter_content = soup.find(
-            chapter_container["tag"],
-            {
-                chapter_container["selector"]: chapter_container["value"]
-            }
-        )
-        # Get the body 
-        body = chapter_content.find_all(chapter_container["text"]["tag"])
+        body = self.get_chapter_content(chapter_container, soup)
         chapter.body = ""
         chapter.document = ""
         # Get the text
