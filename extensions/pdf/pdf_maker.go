@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"strings"
-	"encoding/json"
 
 	"github.com/jung-kurt/gofpdf"
 )
@@ -20,7 +20,7 @@ func main() {
 
 	output := pdfMaker["output"].(string)
 
-	if pdfMaker["isManga"].(bool) == true {
+	if pdfMaker["isManga"].(bool) {
 		// Make a manga pdf
 		chapters := pdfMaker["chapters"].(map[int]interface{})
 		// Loop through the chapters
@@ -41,7 +41,12 @@ func main() {
 			}
 		}
 	} else {
-		chapters := pdfMaker["chapters"].([]string)
+		chapter_array := pdfMaker["chapters"].([]interface{})
+		var chapters []string
+		for x := 0; x < len(chapter_array); x++ {
+			chapters = append(chapters, chapter_array[x].(string))
+		}
+		
 		// Loop through the chapters
 		for i := 0; i < len(chapters); i++ {
 			// Add a page
@@ -69,6 +74,8 @@ func AddPage(pdf *gofpdf.Fpdf, isManga bool, fileToAdd string) {
 		// Add the title to the pdf
 		pdf.SetFont("Arial", "B", 16)
 		pdf.Cell(40, 10, title)
+		// Now reset the font
+		pdf.SetFont("Arial", "", 12)
 
 		_, lineHt := pdf.GetFontSize()
 		// Add the file contents to the pdf
