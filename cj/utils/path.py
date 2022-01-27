@@ -70,8 +70,17 @@ def create_source_path(source, dir):
         - source: The source to create the directories for.
         - dir(str): The directory to create the directories in.
     """
+    # Convert the title to only capital letters for the first letter
+    title = ""
+    title_split = source.title.split(' ')
+    for word in title_split:
+        space = " " if title_split.index(word) > 0 else ""
+        letters = [letter for letter in word]
+        letters[0] = letters[0].upper()
+        title += space + ''.join(letters)
+    
     # Get the source path
-    source = read_settings("path")['source'] + f'/{dir}/{source.title}'
+    source = read_settings("path")['source'] + f'/{dir}/{title}'
     # Create the novel directory
     create_dir(source)
     return source
@@ -125,3 +134,12 @@ def get_slash_type(path)-> str :
         return '\\'
     else:
         return '/'
+
+
+def get_files_in_directory(path) -> list[str]:
+    """
+    Get all the files in a directory.
+    """
+    files = glob.glob(f"{path}/*")
+
+    return files
