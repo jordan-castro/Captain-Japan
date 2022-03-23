@@ -10,7 +10,7 @@ What makes Captain Japan different and BETTER than other scrapers, is that CJ (C
 - Add Manga support.
 - Add Anime support.
 - Add a way to add new sites without coding.
-- ~~Fix website overlodaing. (Currently CaptainJapan will look like a DDos rather than a real person)
+- ~~Fix website overlodaing. (Currently CaptainJapan will look like a DDos rather than a real person)~~
 - Handle the scraping in one class.
 - UTF-8 PDF support.
-- ~~Incorporate the new PDF maker into the app.
+- ~~Incorporate the new PDF maker into the app.~~
