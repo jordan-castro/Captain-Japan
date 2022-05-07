@@ -1,60 +1,44 @@
 from cj.bookmaker import get_chapters_for_maker
 from cj.bookmaker.pdf import PdfMaker
+from cj.crawler.crawl import Crawler
 from cj.data.cj_db import CJDB
 from cj.objects.book import Book
+from cj.objects.chapter import Chapter
 from cj.objects.novel import Novel
+from cj.scraper.novels.ltn import LTN
 from cj.scraper.novels.rnf import RNF
 from cj.utils.enums import BookType, CjType
-from cj.utils.save import Save
 from cj.utils.cmd_args import Args
 from cj.bookmaker.epub import EpubMaker
-import time
-
-from threading import Thread, current_thread
 
 
-def scrape_novel(title: str, chapters: list[int]):
-    rnf = RNF(title)
-    rnf.should_scroll = False
-    rnf.should_wait = True
-    rnf.wait_time = 1
-    # Can not change the data above
-    rnf.can_change_scroll = False
-    rnf.can_change_wait = False
-    # See if the novel exists
-    result = rnf.search()
-    if result is None:
-        return False
-
-    # It's all good let's go
-    rnf.load_chapters(result)
-    cover = rnf.cover()
-
-    # The novel
-    novel = Novel(None, title, None, cover)
-
-    # If no chapters are passed, then we want to scrape ALL of them
-    if len(chapters) == 0:
-        chapters = [chapter.number for chapter in rnf.chapters]
-        
-    # Loop through the chapters
-    for chapter in chapters:
-        # Get the index of ze chapter
-        if chapter != 0 and chapter % rnf.limit == 0:
-            time.sleep(10)
-
-        novel_chapter = rnf.scrape(rnf.chapters[chapter])
-        # Save the chapter asynchronously
-        save = Save(novel_chapter, novel)
-        Thread(target=save.save).start()
-
-    # We are done with the Scraper
-    rnf.quit()
-    # Wait for the threads to finish
-    current_thread().join()
-
-    print(f"Finished scraping {title}, You might have to wait a moment for all the chapters to show up.")
-    print(f"You can find the raw novel in {novel.location}.")
+def scrape_novel(title: str, chapters: list[int], source: str):
+    if source == 'rnf':
+        scraper = RNF(title)
+        # Set the data
+        scraper.should_scroll = False
+        scraper.should_wait = True
+        scraper.wait_time = 1
+        # Can not change data above
+        scraper.can_change_scroll = False
+        scraper.can_change_wait = False
+        time_between_scrape = 60
+    elif source == 'ltn':
+        scraper = LTN(title)
+        # Set the data
+        s_chapters = [
+            Chapter(None, None, f"Chapter {i + 1}") for i in chapters
+        ]
+        scraper.chapters = s_chapters
+        time_between_scrape = 0
+    # Start the crawler obejct
+    crawler = Crawler(scraper, CjType.NOVEL, time_between_scrape)
+    
+    # Try and crawl
+    try:
+        crawler.crawl(chapters)
+    except Exception as e:
+        print(f"Something went wrong with crawling: {e}")
 
 
 def create_book_from_novel(title, chapters, book_type):
@@ -94,6 +78,7 @@ def create_book_from_novel(title, chapters, book_type):
 
 
 if __name__ == "__main__":
-    # scrape_novel("The beginning after the end", [])
-    chapters = [c for c in range(0, 39)]
-    create_book_from_novel("The beginning after the end", chapters, BookType.PDF)
+    chapters = [c for c in range(0, 14)]
+
+    # scrape_novel("Mushoku Tensei Jobless Oblige", chapters, "ltn") # Scrape example
+    create_book_from_novel("Mushoku Tensei Jobless Oblige", chapters, BookType.EPUB) # Convert into ebook example
