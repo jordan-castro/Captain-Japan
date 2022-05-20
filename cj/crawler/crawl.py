@@ -29,12 +29,8 @@ class Crawler:
             # Set the Base class
             self.source: NovelBase = self.source
             novel: Novel = Novel(None, self.source.title, None, None)
-            # Grab chapters
-            chapters_url = self.source.search()
-            if chapters_url is None:
-                raise Exception("No chapters found.")
             # Load the chapters
-            self.source.load_chapters(chapters_url)
+            self.source.load_chapters(self.source.base_url)
             for i in chapters:
                 # Grab the chapter based on index
                 chapter = self.source.chapters[i]

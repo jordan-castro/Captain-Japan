@@ -12,9 +12,9 @@ from cj.utils.cmd_args import Args
 from cj.bookmaker.epub import EpubMaker
 
 
-def scrape_novel(title: str, chapters: list[int], source: str):
+def scrape_novel(title: str, chapters: list[int], source: str, url: str):
     if source == 'rnf':
-        scraper = RNF(title)
+        scraper = RNF(title, url)
         # Set the data
         scraper.should_scroll = False
         scraper.should_wait = True
@@ -24,7 +24,7 @@ def scrape_novel(title: str, chapters: list[int], source: str):
         scraper.can_change_wait = False
         time_between_scrape = 60
     elif source == 'ltn':
-        scraper = LTN(title)
+        scraper = LTN(title, url)
         # Set the data
         s_chapters = [
             Chapter(None, None, f"Chapter {i + 1}") for i in chapters

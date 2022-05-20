@@ -11,8 +11,8 @@ class RNF(NovelBase):
     This class handles the ReadNovelFull scraping.
     """
 
-    def __init__(self, title: str) -> None:
-        super().__init__(True, True, "https://readnovelfull.com", title)
+    def __init__(self, title: str, url) -> None:
+        super().__init__(True, True, url, title)
 
     def cover(self) -> str:
         cover_loc = '//*[@id="novel"]/div[1]/div[1]/div[2]/div/div[2]/img'
@@ -70,17 +70,6 @@ class RNF(NovelBase):
             - int the chapter number
         """
         return index
-        # # Check if the chapter title is a number
-        # if chapter_title.isnumeric():
-        #     return int(chapter_title)
-        
-        # # Find the first set of numbers in the chapter title
-        # chapter_split = chapter_title.split(" ")
-        # # Loop through the split
-        # for data in chapter_split:
-        #     # Check if is numeric
-        #     if data.isnumeric():
-        #         return int(data)
 
     def scrape(self, chapter: Chapter) -> Chapter:
         chapter_container = {
@@ -119,33 +108,3 @@ class RNF(NovelBase):
 
         # Return the chapter url
         return self.base_url + self.chapters[chapter].url
-
-    def search(self) -> str:
-        search_field = None
-        try:
-            search_field = self.driver.find_element(By.ID, "search-input")
-        except:
-            return None
-        # Input the search query
-        search_field.send_keys(self.title)
-        # Enter the search query
-        search_field.submit()
-        # Wait for the search results to load
-        self.set_should_wait(True)
-        self.set_wait_time(5)
-        self.wait()
-
-        # Lets get the results
-        novel_titles = self.driver.find_elements(By.CLASS_NAME, "novel-title")
-
-        # Loop through the results
-        for novel_title in novel_titles:
-            # Check if the novel title is similar to the title we are looking for
-            if self.title.lower() in novel_title.text.lower():
-                # Get the novel url
-                novel_url = novel_title.find_element(By.TAG_NAME, "a").get_attribute("href")
-                # Return the novel url
-                return novel_url
-        
-        # Could not find the novel
-        return None

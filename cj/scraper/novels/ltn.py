@@ -10,9 +10,8 @@ class LTN(NovelBase):
     """
     This class handles scrapings for the LT Novel website.
     """
-
-    def __init__(self, title: str) -> None:
-        super().__init__(False, True, "https://www.ltnovel.com", title)
+    def __init__(self, title: str, url) -> None:
+        super().__init__(False, True, url, title)
 
     def cover(self) -> str:
         cover_xpath = '//*[@id="novel"]/header/div/div[1]/figure/img'
@@ -58,20 +57,5 @@ class LTN(NovelBase):
 
     def build_url(self, chapter: int) -> str:
         # Add the chapter number to the url
-        url = f"{self.base_url}/novel/{self.title.lower().replace(' ', '-')}_{chapter + 1}.html"
+        url = f"{self.base_url}_{chapter + 1}.html"
         return url
-
-    def search(self) -> str:
-        # Lower the title and add "-" in place of spaces
-        title = self.title.lower()
-        title = title.replace(" ", "-")
-        # Add to url
-        self.current_url = self.base_url + f"/novel/{title}.html"
-        # Check if a cover is found
-        cover = self.cover()
-        if cover is None:
-            # The novel does not exist under that name.
-            print(f"Novel {self.title} does not exist.")
-            return None
-        else:
-            return self.current_url

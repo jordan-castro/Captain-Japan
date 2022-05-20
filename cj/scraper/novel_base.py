@@ -21,7 +21,7 @@ class NovelBase(Scraper):
         - url(str): The url of the Novel website.
         - title(str): The title of the novel to scrape.
     """
-    def __init__(self, javascript: bool, headless: bool, url: str, title: str,) -> None:
+    def __init__(self, javascript: bool, headless: bool, url: str, title: str) -> None:
         super().__init__(javascript, headless, start_url=url)
         self.base_url = url
         self.title = title
@@ -57,16 +57,6 @@ class NovelBase(Scraper):
 
         Params:
             - chapter(): The chapter number to scrape.
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    def search(self) -> str:
-        """
-        Search the novel for the title passed.
-
-        Returns:
-            - The url of the novel.
         """
         raise NotImplementedError
 
