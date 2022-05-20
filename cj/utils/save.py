@@ -5,6 +5,7 @@ from cj.utils.enums import CjType
 from cj.utils.naming import remove_chars
 from cj.utils.path import create_dir, create_source_path
 from cj.data.cj_db import CJDB
+from threading import Thread
 
 import codecs
 import os
@@ -19,6 +20,8 @@ class Save:
         self.chapter = chapter
         self.source = source
         self.db = CJDB()
+
+        Thread(target=self.save).start()
 
     def save(self) -> None:
         """

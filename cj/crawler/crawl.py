@@ -2,7 +2,6 @@ from cj.objects.chapter import Chapter
 from cj.objects.novel import Novel
 from cj.scraper.novel_base import NovelBase
 from cj.utils.enums import CjType
-from threading import Thread
 
 import time
 
@@ -38,9 +37,7 @@ class Crawler:
                     chapter.number = i
                 chapter = self.source.scrape(chapter)
                 # Save the chapter assynchronously
-                save = Save(chapter, novel)
-                Thread(target=save.save).start()
-                # Wait the time_between_scrape
+                Save(chapter, novel)
                 time.sleep(self.time_between_scrape)
             # Quit the scraper and join the current thread
             self.source.quit()
