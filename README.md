@@ -6,10 +6,7 @@ What makes Captain Japan different and BETTER than other scrapers, is that CJ (C
 
 # TODO
 - Add WuxiaWorld support.
-- Add Manga support.
-- Add Anime support.
 - Add a way to add new sites without coding.
 - Handle the scraping in one class.
 - UTF-8 PDF support.
 - Handle the scraping in one class.
-- UTF-8 PDF support.
